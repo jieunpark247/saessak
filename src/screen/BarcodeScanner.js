@@ -42,10 +42,11 @@ export class BarcodeScanner extends Component {
     isFirstGet = false
     this.props.route.params.onGetBarcode(barcodeValue);
     //TODO 필요한 부분 구현하세요
-    this.props.navigation.navigate('Home')
+    this.props.navigation.navigate('Board')
     
     //called after te successful scanning of QRCode/Barcode
-    console.log("scanned barcode value: " + barcodeValue)
+ //   console.log("scanned barcode value: " + barcodeValue)
+    alert("code Number " + barcodeValue)
   }
 
   //TODO Home.js로 이동시키세요 

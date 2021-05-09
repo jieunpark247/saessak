@@ -1,7 +1,43 @@
 import React, { Component } from "react";
-import {Button, StyleSheet, View, Image, ImageBackground, Text } from "react-native";
-
+import {Button, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
 export class Board extends Component { 
+  scanBarcode = () => {
+ 
+    var that = this;
+    //To Start Scanning
+    if (Platform.OS === 'android') {
+        async function requestCameraPermission() {
+            try {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.CAMERA, {
+                    'title': '카메라 권한 요청',
+                    'message': '바코드를 스캔하기 위해 카메라 권한을 허용해주세요.'
+                }
+                )
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    //If CAMERA Permission is granted
+
+                    //TODO BarcodeScanner.js를 호출하세요 
+                    //this가 아니라 that을 사용해야 함 
+                    that.props.navigation.navigate('BarcodeScanner', { onGetBarcode: that.onGetBarcode })
+                } else {
+                    alert("카메라 권한을 받지 못했습니다.");
+                }
+            } catch (err) {
+                alert("카메라 권한 오류: ", err);
+                console.warn(err);
+            }
+        }
+        //Calling the camera permission function
+        requestCameraPermission();
+    } 
+  }
+
+  onGetBarcode = (barcodeValue) => {
+      console.log("barcode value: ", barcodeValue);
+      //아래 함수의 파라미터로 문자열만 넘길 수 있음. barcodeValue가 문자열처럼 보이지만 문자열이 아닌 듯. String()는 작동하지 않음. JSON.stringify()는 작동함 
+      Alert.alert("barcode value: ", barcodeValue);
+  };
 
   render() {
     return (
@@ -60,7 +96,14 @@ export class Board extends Component {
                   >
                     <Text style={styles.n건}>N건</Text>
                   </ImageBackground>
-                  <Text style={styles.시작하기}>시작하기</Text>
+              
+                   <TouchableOpacity onPress={this.scanBarcode}  style={styles.start}>
+                    <Text style={styles.startArea}>
+                     시작하기
+                    </Text>
+                  </TouchableOpacity>
+
+
                 </View>
                 <View style={styles.서초구5Stack}>
                   <Text style={styles.서초구5}>서초구</Text>
@@ -278,15 +321,17 @@ export class Board extends Component {
       marginTop: 32,
       marginLeft: 19
     },
-    시작하기: {
+    start: {
       top: 82,
       left: 31,
       position: "absolute",
-      fontFamily: "calibri-bold",
-      color: "rgba(255,255,255,1)",
       height: 26,
       width: 109,
+    },
+    startArea: {
+      fontFamily: "calibri-bold",
       fontSize: 20,
+      color: "rgba(255,255,255,1)",
       textAlign: "center"
     },
     image9Stack: {
