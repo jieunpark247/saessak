@@ -40,13 +40,15 @@ export class BarcodeScanner extends Component {
     }
 
     isFirstGet = false
-    this.props.route.params.onGetBarcode(barcodeValue);
+   // this.props.route.params.onGetBarcode(barcodeValue);
+    //바코드 정보 firebase로 데이터 넣기 
+
     //TODO 필요한 부분 구현하세요
-    this.props.navigation.navigate('Board')
+    this.props.navigation.navigate('CameraRoll')
     
     //called after te successful scanning of QRCode/Barcode
- //   console.log("scanned barcode value: " + barcodeValue)
-    alert("code Number " + barcodeValue)
+    console.log("scanned barcode value: " + barcodeValue)
+    alert("Code Number : " + barcodeValue  + " 를 저장 완료했습니다.")
   }
 
   //TODO Home.js로 이동시키세요 

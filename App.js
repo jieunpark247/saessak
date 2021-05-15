@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import {Home, BarcodeScanner ,Board} from './src/screen';
+import {CameraRoll, BarcodeScanner ,Board} from './src/screen';
 
 const navOptionHandler = () => ({
   headerShown: false,
@@ -15,7 +15,7 @@ export default function App() {
     <NavigationContainer>
       <StackApp.Navigator initialRouteName="Board">
         <StackApp.Screen name="Board" component={Board} options={navOptionHandler} />
-        <StackApp.Screen name="Home" component={Home} options={navOptionHandler} />
+        <StackApp.Screen name="CameraRoll" component={CameraRoll} options={navOptionHandler} />
         <StackApp.Screen name="BarcodeScanner" component={BarcodeScanner} options={navOptionHandler} /> 
       </StackApp.Navigator>
     </NavigationContainer>

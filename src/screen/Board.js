@@ -1,25 +1,31 @@
 import React, { Component } from "react";
 import {Button, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
+
 export class Board extends Component { 
   scanBarcode = () => {
- 
-    var that = this;
+     var that = this;
     //To Start Scanning
     if (Platform.OS === 'android') {
         async function requestCameraPermission() {
             try {
                 const granted = await PermissionsAndroid.request(
                     PermissionsAndroid.PERMISSIONS.CAMERA, {
-                    'title': '카메라 권한 요청',
-                    'message': '바코드를 스캔하기 위해 카메라 권한을 허용해주세요.'
-                }
-                )
+                      title: "Cool Photo App Camera Permission",
+                      message:
+                        "Cool Photo App needs access to your camera " +
+                        "so you can take awesome pictures.",
+                      buttonNeutral: "Ask Me Later",
+                      buttonNegative: "Cancel",
+                      buttonPositive: "OK"
+                  }
+                );        
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                     //If CAMERA Permission is granted
-
+                    console.log("user camera")
                     //TODO BarcodeScanner.js를 호출하세요 
                     //this가 아니라 that을 사용해야 함 
-                    that.props.navigation.navigate('BarcodeScanner', { onGetBarcode: that.onGetBarcode })
+                   that.props.navigation.navigate('BarcodeScanner')
+                  // that.props.navigation.navigate('CameraRoll', { onGetBarcode: that.onGetBarcode })
                 } else {
                     alert("카메라 권한을 받지 못했습니다.");
                 }
@@ -80,12 +86,6 @@ export class Board extends Component {
                 </View>
               </View>
             </View>
-            <ImageBackground
-              source={require("../assets/images/ComponentTMP_0-image91.png")}
-              resizeMode="contain"
-              style={styles.circle}
-              imageStyle={styles.circle_imageStyle}
-            >
               <View style={styles.image9StackStack}>
                 <View style={styles.image9Stack}>
                   <ImageBackground
@@ -96,21 +96,19 @@ export class Board extends Component {
                   >
                     <Text style={styles.n건}>N건</Text>
                   </ImageBackground>
-              
-                   <TouchableOpacity onPress={this.scanBarcode}  style={styles.start}>
+
+
+                   <TouchableOpacity onPress={this.scanBarcode} style={styles.button}>
                     <Text style={styles.startArea}>
-                     시작하기
+                        시작하기
                     </Text>
                   </TouchableOpacity>
-
-
                 </View>
                 <View style={styles.서초구5Stack}>
                   <Text style={styles.서초구5}>서초구</Text>
                   <Text style={styles.서초구4}>2위</Text>
                 </View>
               </View>
-            </ImageBackground>
           </View>
           <View style={styles.rect1}>
             <View style={styles.rect6Row}>
@@ -295,21 +293,6 @@ export class Board extends Component {
       flex: 1,
       marginRight: 11
     },
-    circle: {
-      top: 220,
-      left: 145,
-      width: 200,
-      height: 200,
-      position: "absolute"
-    },
-    circle_imageStyle: {},
-    image9: {
-      top: 0,
-      left: 0,
-      width: 85,
-      height: 85,
-      position: "absolute"
-    },
     image9_imageStyle: {},
     n건: {
       fontFamily: "calibri-bold",
@@ -321,18 +304,29 @@ export class Board extends Component {
       marginTop: 32,
       marginLeft: 19
     },
-    start: {
-      top: 82,
-      left: 31,
-      position: "absolute",
-      height: 26,
-      width: 109,
-    },
     startArea: {
       fontFamily: "calibri-bold",
       fontSize: 20,
       color: "rgba(255,255,255,1)",
       textAlign: "center"
+    },
+    button: {
+      top: 290,
+      left: 170,
+      width: 160,
+      height: 50,
+      alignItems: "center",
+      backgroundColor: "#7cc594",
+      padding: 10,
+      position: "absolute",
+      borderRadius : 40
+    },
+    image9: {
+      top: 220,
+      left: 145,
+      width: 85,
+      height: 85,
+      position: "absolute"
     },
     image9Stack: {
       top: 0,
@@ -342,8 +336,8 @@ export class Board extends Component {
       position: "absolute"
     },
     서초구5: {
-      top: 0,
-      left: 0,
+      top: 220,
+      left: 145,
       position: "absolute",
       fontFamily: "roboto-700",
       color: "rgba(37,119,62,1)",
@@ -352,8 +346,8 @@ export class Board extends Component {
       fontSize: 15
     },
     서초구4: {
-      top: 15,
-      left: 6,
+      top: 235,
+      left: 151,
       position: "absolute",
       fontFamily: "roboto-700",
       color: "#121212",
