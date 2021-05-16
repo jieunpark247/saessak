@@ -2,36 +2,71 @@ import React, { Component } from 'react';
 import {Button, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
 import { RNCamera, } from 'react-native-camera';
 import storage from '@react-native-firebase/storage';
-
+import database from '@react-native-firebase/database';
+import uuid from 'react-native-uuid'
 
  //default는 App.js에서만 사용해야 하는 듯 
  export class CameraRoll extends Component {
+    constructor(props) {
+      console.log(props)
+      super(props);
+    };
+
      takePhoto = async () => {
-      if (this.camera) {
+       if (this.camera) {
         const options = { quality: 0.5, base64: true };
         const data = await this.camera.takePictureAsync(options);
-       // console.log(data.uri);
         this.uploadImage(data.uri)
         
       }
     };
     uploadImage = async(imageUri) => {
+      const barcodeValue = this.props.route.params.barcodeValue;
       console.log("imageuri : " , imageUri)
+      console.log("barcodeValue : " , barcodeValue)
       const ext = imageUri.split('Camera').pop();
       const reference = storage().ref(`saessak${ext}`);
       reference.putFile(imageUri)
       .then((response) => {
-        console.log('success save picture in firebase');
-        console.log(response);
-        this.props.navigation.navigate('Board')
+        console.log('success save picture in firebase')
+        //console.log(response)
+            //DB에 쓰기 
+        var date = new Date()
+        const data = {
+          imageUri:imageUri,
+          barcodeValue:barcodeValue,
+          today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
+        }
+        this.writeDB(data)
       })
       .catch((error) => {
-          console.log('error');
-          console.log(error);
+          console.log('error')
+          console.log(error)
       });
 
     };
-   render() {
+    writeDB = (data) => {
+      console.log("this is writeDB function")
+      const userId = '7a4e706747716f7237394373666a43'
+      console.log(data.barcodeValue);
+      database().ref( `users/${userId}/${uuid.v4()}`).set({
+        profile_picture : data.imageUri,
+        barcodeValue: data.barcodeValue,
+        todayDate : data.today
+      })
+      .then((response) => {
+        console.log('success write database')
+        //alert("Code Number : " +  data.barcodeValue  + " 를 저장 완료했습니다.")
+        this.props.navigation.navigate('Board')
+      })
+      .catch((error) => {
+          console.log('error')
+          console.log(error)
+      });
+    
+    }
+ 
+   render() {;
      return (
       <>
       <RNCamera
