@@ -5,7 +5,6 @@
  * @format
  * @flow strict-local
  */
-
 import React, { Component } from 'react';
 import { View, PermissionsAndroid, Platform } from 'react-native';
 import { CameraKitCameraScreen, } from 'react-native-camera-kit';
@@ -34,26 +33,25 @@ export class BarcodeScanner extends Component {
  */
 
   onBarcodeScan(barcodeValue) {
-    console.log("onBarcodeScan")
+    console.log("onBarcodeScan function start")
     if (!isFirstGet) {      
       return
     }
 
     isFirstGet = false
-    this.props.route.params.onGetBarcode(barcodeValue);
+   // this.props.route.params.onGetBarcode(barcodeValue);
+    //바코드 정보 firebase로 데이터 넣기 
+
     //TODO 필요한 부분 구현하세요
-    this.props.navigation.navigate('Board')
-    
+    console.log("scanned barcode value: " + barcodeValue)
+    this.props.navigation.navigate('CameraRoll', { barcodeValue: barcodeValue })
     //called after te successful scanning of QRCode/Barcode
- //   console.log("scanned barcode value: " + barcodeValue)
-    alert("code Number " + barcodeValue)
-  }
+  } 
 
   //TODO Home.js로 이동시키세요 
   checkCameraPermission() {
 
   }
-
 
   render() {
     return (

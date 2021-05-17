@@ -1,25 +1,64 @@
 import React, { Component } from "react";
-import {Button, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
+import database from '@react-native-firebase/database';
+//import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-community/async-storage'
+
 export class Board extends Component { 
+  constructor(props){
+    super(props);
+    this.state = { 
+      data : [] , 
+      userInfo : {}
+    }
+  }
+  componentDidMount(){
+    console.log("========mount =========")
+         //async 세팅 
+    AsyncStorage.setItem('users',JSON.stringify({'userId': '7a4e706747716f7237394373666a43', 'area': '도봉구'}), () => {
+      console.log('유저정보 저장 완료')
+      AsyncStorage.getItem('users', (err, result) => {
+      const userInfo = JSON.parse(result)
+      this.setState({userInfo : userInfo});
+    
+      const ref = database().ref();
+      ref.on("value", rs =>{
+          var recycleArray = []
+          var recycleList = rs.val() === null ? null : rs.val().users[this.state.userInfo.userId]
+          for(var i in recycleList){
+            recycleArray.push(recycleList[i]);
+          }
+          this.setState({data : recycleArray});
+        });
+
+      });
+    });
+    
+  }
   scanBarcode = () => {
- 
-    var that = this;
+     var that = this;
     //To Start Scanning
     if (Platform.OS === 'android') {
         async function requestCameraPermission() {
             try {
                 const granted = await PermissionsAndroid.request(
                     PermissionsAndroid.PERMISSIONS.CAMERA, {
-                    'title': '카메라 권한 요청',
-                    'message': '바코드를 스캔하기 위해 카메라 권한을 허용해주세요.'
-                }
-                )
+                      title: "Cool Photo App Camera Permission",
+                      message:
+                        "Cool Photo App needs access to your camera " +
+                        "so you can take awesome pictures.",
+                      buttonNeutral: "Ask Me Later",
+                      buttonNegative: "Cancel",
+                      buttonPositive: "OK"
+                  }
+                );        
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                     //If CAMERA Permission is granted
-
+                    console.log("user camera")
                     //TODO BarcodeScanner.js를 호출하세요 
                     //this가 아니라 that을 사용해야 함 
-                    that.props.navigation.navigate('BarcodeScanner', { onGetBarcode: that.onGetBarcode })
+                   that.props.navigation.navigate('BarcodeScanner')
+                  // that.props.navigation.navigate('CameraRoll', { onGetBarcode: that.onGetBarcode })
                 } else {
                     alert("카메라 권한을 받지 못했습니다.");
                 }
@@ -32,99 +71,116 @@ export class Board extends Component {
         requestCameraPermission();
     } 
   }
+  recycleLevel= (cnt) => {
+    var imageSrc
+    if(cnt < 2){
+      imageSrc = require("../assets/images/saessak-img-01.png")
+    }else if(cnt < 6){
+      imageSrc = require("../assets/images/saessak-img-02.png")
+    }else if(cnt < 8){
+      imageSrc = require("../assets/images/saessak-img-03.png")
+    }else if(cnt < 10){
+      imageSrc = require("../assets/images/saessak-img-04.png")
+    }else if(cnt >= 10){
+      imageSrc = require("../assets/images/saessak-img-05.png")
+    }
+    return imageSrc
+  }
 
-  onGetBarcode = (barcodeValue) => {
-      console.log("barcode value: ", barcodeValue);
-      //아래 함수의 파라미터로 문자열만 넘길 수 있음. barcodeValue가 문자열처럼 보이지만 문자열이 아닌 듯. String()는 작동하지 않음. JSON.stringify()는 작동함 
-      Alert.alert("barcode value: ", barcodeValue);
-  };
+  createBarcodeYes = () =>
+    Alert.alert(
+      "선택해주세요",
+      "바코드가 있습니까?",
+      [
+        {
+          text: "아니오",
+          onPress: () =>  this.props.navigation.navigate('CameraRoll', { barcodeValue: '' }),
+          style: "cancel"
+        },
+        { text: "네", onPress: () => this.scanBarcode() }
+      ]
+    );
 
   render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.imageStackStack}>
+      <SafeAreaView  style={styles.container}>
+        <ScrollView style={styles.scrollView}>
+        <View style={styles.listBox}>
           <View style={styles.imageStack}>
             <ImageBackground
-              source={require("../assets/images/ComponentTMP_0-image11.png")}
+              source={require("../assets/images/background-up.png")}
               resizeMode="contain"
               style={styles.image}
               imageStyle={styles.image_imageStyle}
             >
-              <View style={styles.image11Row}>
+              <View style={styles.imageSettingRow}>
                 <Image
-                  source={require("../assets/images/image_PbMs..png")}
+                  source={require("../assets/images/image-setting.png")}
                   resizeMode="contain"
-                  style={styles.image11}
+                  style={styles.imageSetting}
                 ></Image>
                 <Image
-                  source={require("../assets/images/image_Kbj8..png")}
+                  source={require("../assets/images/saessak-logo-02.png")}
                   resizeMode="contain"
-                  style={styles.image10}
+                  style={styles.saessakLogo}
                 ></Image>
               </View>
             </ImageBackground>
-            <View style={styles.rect}>
-              <View style={styles.rect3}>
-                <View style={styles.image2Row}>
+            <View style={styles.firstBoard}>
+              <View style={styles.whiteBoard}>
+                <View style={styles.whiteBoardView}>
                   <Image
-                    source={require("../assets/images/ComponentTMP_0-circle.png")}
+                    source={this.recycleLevel(this.state.data.length)}
                     resizeMode="contain"
-                    style={styles.image2}
+                    style={styles.levelImg}
                   ></Image>
-                  <Text style={styles.나의점수}>나의 점수</Text>
+                  <Text style={styles.myLevel}>나의 점수</Text>
                   <Image
-                    source={require("../assets/images/circle.png")}
+                    source={require("../assets/images/cityCircle.png")}
                     resizeMode="contain"
-                    style={styles.image5}
+                    style={styles.areaImg}
                   ></Image>
                 </View>
               </View>
             </View>
-            <ImageBackground
-              source={require("../assets/images/ComponentTMP_0-image91.png")}
-              resizeMode="contain"
-              style={styles.circle}
-              imageStyle={styles.circle_imageStyle}
-            >
               <View style={styles.image9StackStack}>
                 <View style={styles.image9Stack}>
                   <ImageBackground
-                    source={require("../assets/images/ComponentTMP_0-image81.png")}
+                    source={require("../assets/images/recycle-count.png")}
                     resizeMode="contain"
                     style={styles.image9}
                     imageStyle={styles.image9_imageStyle}
                   >
-                    <Text style={styles.n건}>N건</Text>
+                    <Text style={styles.n건}>{this.state.data.length + "건"}</Text>
                   </ImageBackground>
-              
-                   <TouchableOpacity onPress={this.scanBarcode}  style={styles.start}>
+
+
+                   <TouchableOpacity onPress={this.createBarcodeYes} style={styles.button}>
                     <Text style={styles.startArea}>
-                     시작하기
+                        시작하기
                     </Text>
                   </TouchableOpacity>
-
-
                 </View>
                 <View style={styles.서초구5Stack}>
-                  <Text style={styles.서초구5}>서초구</Text>
+                  <Text style={styles.서초구5}>{this.state.userInfo.area}</Text>
                   <Text style={styles.서초구4}>2위</Text>
                 </View>
               </View>
-            </ImageBackground>
           </View>
-          <View style={styles.rect1}>
-            <View style={styles.rect6Row}>
-              <View style={styles.rect6}>
-                <Text style={styles.대기오염}>대기오염</Text>
+
+          <View style={styles.secondBoard}>
+            <View style={styles.secondBoard2}>
+              <View style={styles.airPollution}>
+                <Text style={styles.airPollutionTxt}>대기오염</Text>
               </View>
-              <View style={styles.rect8}>
-                <Text style={styles.재활용비율}>재활용비율</Text>
+              <View style={styles.recyclingRate}>
+                <Text style={styles.recyclingRateTxt}>재활용 비율</Text>
               </View>
-              <View style={styles.rect9}>
-                <Text style={styles.수질}>수질</Text>
+              <View style={styles.waterQuality}>
+                <Text style={styles.waterQualityTxt}>수질</Text>
               </View>
             </View>
-            <View style={styles.rect5}>
+            <View style={styles.secondWhiteBoard}>
               <Text style={styles.환경대기정보}>환경 대기 정보</Text>
               <View style={styles.매우나쁨Row}>
                 <Text style={styles.매우나쁨}>매우나쁨</Text>
@@ -141,89 +197,50 @@ export class Board extends Component {
             </View>
           </View>
         </View>
-        <View style={styles.rect2}>
-          <View style={styles.대기오염4ColumnRow}>
-            <View style={styles.대기오염4Column}>
-              <Text style={styles.대기오염4}>123123123</Text>
-              <View style={styles.대기오염4Filler}></View>
-              <Image
-                source={require("../assets/images/ComponentTMP_0-image51.png")}
-                resizeMode="contain"
-                style={styles.image7}
-              ></Image>
-            </View>
-            <Image
-              source={require("../assets/images/image_PrJY..png")}
-              resizeMode="contain"
-              style={styles.image12}
-            ></Image>
-            <Text style={styles.대기오염3}>2021-05-09</Text>
-            <Image
-              source={require("../assets/images/image_sAPr..png")}
-              resizeMode="contain"
-              style={styles.image13}
-            ></Image>
-          </View>
-        </View>
-        <View style={styles.rect4}>
-          <View style={styles.대기오염5ColumnRow}>
-            <View style={styles.대기오염5Column}>
-              <Text style={styles.대기오염5}>123123123</Text>
-              <View style={styles.image8Row}>
+
+        {
+          this.state.data.map((value,index) => {
+            return(
+            <View style={styles.thirdBoard} key={index}>
+              <View style={styles.listItem}>
+                <View style={styles.barcodeColumn}>
+                  <Text style={styles.barcodeText}>{value.barcodeValue === '' ? "재활용" : value.barcodeValue}</Text>
+                  <View style={styles.recycleImgRow}>
+                    <Image
+                      source= {value.barcodeValue === '' ? require("../assets/images/recycle-img-02.png") : require("../assets/images/recycle-img-01.png")}
+                      resizeMode="contain"
+                      style={styles.recycleImg}
+                    ></Image>
+                    <Text style={styles.recycleCount}>1건</Text>
+                  </View>
+                </View>
                 <Image
-                  source={require("../assets/images/ComponentTMP_0-image41.png")}
+                  source={require("../assets/images/clock-img.png")}
                   resizeMode="contain"
-                  style={styles.image8}
+                  style={styles.dateImg}
                 ></Image>
-                <Text style={styles.대기오염2}>1건</Text>
-              </View>
-            </View>
-            <Image
-              source={require("../assets/images/image_PrJY..png")}
-              resizeMode="contain"
-              style={styles.image15}
-            ></Image>
-            <Text style={styles.대기오염6}>2021-05-09</Text>
-            <Image
-              source={require("../assets/images/image_sAPr..png")}
-              resizeMode="contain"
-              style={styles.image14}
-            ></Image>
-          </View>
-        </View>
-        <View style={styles.rect10}>
-          <View style={styles.대기오염7ColumnRow}>
-            <View style={styles.대기오염7Column}>
-              <Text style={styles.대기오염7}>123123123</Text>
-              <View style={styles.image18Row}>
+                <Text style={styles.dateText}>{value.todayDate}</Text>
                 <Image
-                  source={require("../assets/images/ComponentTMP_0-image51.png")}
+                  source={{uri : value.profile_picture}}
                   resizeMode="contain"
-                  style={styles.image18}
+                  style={styles.image16}
                 ></Image>
-                <Text style={styles.대기오염9}>1건</Text>
               </View>
-            </View>
-            <Image
-              source={require("../assets/images/image_PrJY..png")}
-              resizeMode="contain"
-              style={styles.image17}
-            ></Image>
-            <Text style={styles.대기오염8}>2021-05-09</Text>
-            <Image
-              source={require("../assets/images/image_sAPr..png")}
-              resizeMode="contain"
-              style={styles.image16}
-            ></Image>
-          </View>
-        </View>
-      </View>
+            </View> 
+            )
+         })
+        }
+        </ScrollView>
+      </SafeAreaView >
     );
   }
 }
   const styles = StyleSheet.create({
     container: {
       flex: 1
+    },
+    scrollView: {
+      backgroundColor: 'white'
     },
     image: {
       top: 0,
@@ -234,18 +251,19 @@ export class Board extends Component {
       flexDirection: "row"
     },
     image_imageStyle: {},
-    image11: {
-      height: 28,
-      width: 28,
-      marginTop: 5
+    imageSetting: {
+      height: 30,
+      width: 30,
+      marginTop: -8,
+      marginLeft: -2
     },
-    image10: {
+    saessakLogo: {
       height: 40,
       width: 40,
       marginLeft: 320,
-      marginTop: -1
+      marginTop: -8
     },
-    image11Row: {
+    imageSettingRow: {
       height: 40,
       flexDirection: "row",
       flex: 1,
@@ -253,29 +271,29 @@ export class Board extends Component {
       marginLeft: 12,
       marginTop: 150
     },
-    rect: {
+    firstBoard: {
       top: 182,
-      left: 25,
+      left: 21,
       width: 365,
       height: 180,
       position: "absolute",
       backgroundColor: "rgba(230,230,230,0.6)",
       borderRadius: 15
     },
-    rect3: {
-      width: 310,
-      height: 130,
+    whiteBoard: {
+      width: 320,
+      height: 140,
       backgroundColor: "rgba(255,255,255,0.6)",
       borderRadius: 15,
       flexDirection: "row",
       marginTop: 17,
-      marginLeft: 25
+      marginLeft: 20
     },
-    image2: {
+    levelImg: {
       width: 105,
       height: 116
     },
-    나의점수: {
+    myLevel: {
       fontFamily: "roboto-700",
       color: "rgba(34,39,31,1)",
       height: 32,
@@ -283,32 +301,18 @@ export class Board extends Component {
       fontSize: 22,
       marginTop: 15
     },
-    image5: {
+    areaImg: {
       width: 75,
       height: 75,
-      marginLeft: 7,
-      marginTop: 7
+      marginLeft: 13,
+      marginTop: 2
     },
-    image2Row: {
+    whiteBoardView: {
       height: 116,
       flexDirection: "row",
       flex: 1,
-      marginRight: 11
-    },
-    circle: {
-      top: 220,
-      left: 145,
-      width: 200,
-      height: 200,
-      position: "absolute"
-    },
-    circle_imageStyle: {},
-    image9: {
-      top: 0,
-      left: 0,
-      width: 85,
-      height: 85,
-      position: "absolute"
+      marginRight: 11,
+      marginTop: 4
     },
     image9_imageStyle: {},
     n건: {
@@ -321,18 +325,29 @@ export class Board extends Component {
       marginTop: 32,
       marginLeft: 19
     },
-    start: {
-      top: 82,
-      left: 31,
-      position: "absolute",
-      height: 26,
-      width: 109,
-    },
     startArea: {
       fontFamily: "calibri-bold",
       fontSize: 20,
       color: "rgba(255,255,255,1)",
       textAlign: "center"
+    },
+    button: {
+      top: 290,
+      left: 170,
+      width: 160,
+      height: 50,
+      alignItems: "center",
+      backgroundColor: "#7cc594",
+      padding: 10,
+      position: "absolute",
+      borderRadius : 40
+    },
+    image9: {
+      top: 220,
+      left: 145,
+      width: 85,
+      height: 85,
+      position: "absolute"
     },
     image9Stack: {
       top: 0,
@@ -342,8 +357,8 @@ export class Board extends Component {
       position: "absolute"
     },
     서초구5: {
-      top: 0,
-      left: 0,
+      top: 220,
+      left: 145,
       position: "absolute",
       fontFamily: "roboto-700",
       color: "rgba(37,119,62,1)",
@@ -352,8 +367,8 @@ export class Board extends Component {
       fontSize: 15
     },
     서초구4: {
-      top: 15,
-      left: 6,
+      top: 235,
+      left: 151,
       position: "absolute",
       fontFamily: "roboto-700",
       color: "#121212",
@@ -382,35 +397,35 @@ export class Board extends Component {
       height: 437,
       position: "absolute"
     },
-    rect1: {
-      top: 387,
-      left: 26,
+    secondBoard: {
+      top: 370,
+      left: 21,
       width: 365,
-      height: 158,
+      height: 180,
       position: "absolute",
       backgroundColor: "rgba(239,249,236,1)",
       borderRadius: 15
     },
-    rect6: {
+    airPollution: {
       width: 120,
       height: 25,
       backgroundColor: "rgba(108,197,124,1)",
       borderRadius: 5
     },
-    대기오염: {
+    airPollutionTxt: {
       fontFamily: "roboto-regular",
       color: "rgba(255,255,255,1)",
       textAlign: "center",
       fontSize: 12,
       marginTop: 4
     },
-    rect8: {
+    recyclingRate: {
       width: 100,
       height: 25,
       backgroundColor: "rgba(241,249,237,0.6)",
       borderRadius: 5
     },
-    재활용비율: {
+    recyclingRateTxt: {
       fontFamily: "roboto-regular",
       color: "rgba(6,6,6,1)",
       textAlign: "center",
@@ -418,13 +433,13 @@ export class Board extends Component {
       marginTop: 4,
       marginLeft: 0
     },
-    rect9: {
+    waterQuality: {
       width: 100,
       height: 25,
       backgroundColor: "rgba(241,249,237,0.6)",
       borderRadius: 5
     },
-    수질: {
+    waterQualityTxt: {
       fontFamily: "roboto-regular",
       color: "rgba(6,6,6,1)",
       textAlign: "center",
@@ -432,19 +447,19 @@ export class Board extends Component {
       marginTop: 4,
       marginLeft: 0
     },
-    rect6Row: {
+    secondBoard2: {
       height: 25,
       flexDirection: "row",
-      marginTop: 12,
+      marginTop: 15,
       marginLeft: 12,
       marginRight: 22
     },
-    rect5: {
+    secondWhiteBoard: {
       width: 330,
-      height: 102,
+      height: 110,
       backgroundColor: "rgba(255,255,255,0.6)",
       borderRadius: 15,
-      marginTop: 5,
+      marginTop: 10,
       marginLeft: 15
     },
     환경대기정보: {
@@ -452,7 +467,7 @@ export class Board extends Component {
       color: "rgba(0,0,0,1)",
       textAlign: "center",
       fontSize: 15,
-      marginTop: 5
+      marginTop: 8
     },
     매우나쁨: {
       fontFamily: "roboto-700",
@@ -484,7 +499,7 @@ export class Board extends Component {
     매우나쁨Row: {
       height: 20,
       flexDirection: "row",
-      marginTop: 8,
+      marginTop: 12,
       marginLeft: 17,
       marginRight: 36
     },
@@ -522,177 +537,57 @@ export class Board extends Component {
       marginLeft: 32,
       marginRight: 36
     },
-    imageStackStack: {
+    listBox: {
       width: 380,
       height: 545,
       marginTop: -52,
       marginLeft: 1
     },
-    rect2: {
+    thirdBoard: {
       width: 365,
-      height: 80,
-      backgroundColor: "rgba(230,230,230,0.6)",
-      borderRadius: 15,
-      marginTop: 15,
-      marginLeft: 26
-    },
-    대기오염4: {
-      fontFamily: "roboto-regular",
-      color: "rgba(0,0,0,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 3
-    },
-    대기오염4Filler: {
-      flex: 1
-    },
-    image7: {
-      width: 40,
-      height: 40
-    },
-    대기오염4Column: {
-      width: 79,
-      marginTop: 4
-    },
-    image12: {
-      height: 20,
-      width: 20,
-      alignSelf: "flex-end",
-      marginLeft: 12,
-      marginBottom: 8
-    },
-    대기오염3: {
-      fontFamily: "roboto-regular",
-      color: "rgba(0,0,0,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 7,
-      marginTop: 45,
-      marginBottom: 9
-    },
-    image13: {
-      height: 65,
-      width: 65,
-      marginLeft: 52
-    },
-    대기오염4ColumnRow: {
-      height: 72,
-      flexDirection: "row",
-      marginTop: 8,
-      marginLeft: 8,
-      marginRight: 16
-    },
-    rect4: {
-      width: 365,
-      height: 80,
-      backgroundColor: "rgba(239,249,236,1)",
-      borderRadius: 15,
-      marginTop: 13,
-      marginLeft: 26
-    },
-    대기오염5: {
-      fontFamily: "roboto-regular",
-      color: "rgba(0,0,0,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 1
-    },
-    image8: {
-      width: 29,
-      height: 29
-    },
-    대기오염2: {
-      fontFamily: "roboto-regular",
-      color: "rgba(249,6,6,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 6,
-      marginTop: 7
-    },
-    image8Row: {
-      height: 29,
-      flexDirection: "row",
-      marginTop: 13,
-      marginRight: 18
-    },
-    대기오염5Column: {
-      width: 77,
-      marginTop: 4,
-      marginBottom: 1
-    },
-    image15: {
-      height: 20,
-      width: 20,
-      alignSelf: "flex-end",
-      marginLeft: 12,
-      marginBottom: 6
-    },
-    대기오염6: {
-      fontFamily: "roboto-regular",
-      color: "rgba(0,0,0,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 7,
-      marginTop: 40,
-      marginBottom: 7
-    },
-    image14: {
-      height: 65,
-      width: 65,
-      marginLeft: 52
-    },
-    대기오염5ColumnRow: {
-      height: 65,
-      flexDirection: "row",
-      marginTop: 7,
-      marginLeft: 10,
-      marginRight: 16
-    },
-    rect10: {
-      width: 365,
-      height: 80,
+      height: 90,
       backgroundColor: "rgba(230,230,230,0.6)",
       borderRadius: 15,
       marginTop: 12,
-      marginLeft: 26
+      marginLeft: 21
     },
-    대기오염7: {
+    barcodeText: {
       fontFamily: "roboto-regular",
       color: "rgba(0,0,0,1)",
-      textAlign: "center",
+      textAlign: "left",
       fontSize: 15,
-      marginLeft: 3
+      marginLeft: 7
     },
-    image18: {
+    barcodeColumn: {
+      width: 130,
+      marginTop: 1
+    },
+    recycleImg: {
       width: 40,
       height: 40,
       alignSelf: "flex-end"
     },
-    대기오염9: {
+    recycleCount: {
       fontFamily: "roboto-regular",
       color: "rgba(249,6,6,1)",
       textAlign: "center",
       fontSize: 15,
       marginTop: 10
     },
-    image18Row: {
+    recycleImgRow: {
       height: 40,
       flexDirection: "row",
       marginTop: 10,
-      marginRight: 16
+      marginRight: 35
     },
-    대기오염7Column: {
-      width: 79,
-      marginTop: 5
-    },
-    image17: {
+    dateImg: {
       height: 20,
       width: 20,
       alignSelf: "flex-end",
       marginLeft: 12,
-      marginBottom: 8
+      marginBottom: 5
     },
-    대기오염8: {
+    dateText: {
       fontFamily: "roboto-regular",
       color: "rgba(0,0,0,1)",
       textAlign: "center",
@@ -704,13 +599,13 @@ export class Board extends Component {
     image16: {
       height: 65,
       width: 65,
-      marginLeft: 52
+      marginLeft: 35
     },
-    대기오염7ColumnRow: {
+    listItem: {
       height: 73,
       flexDirection: "row",
-      marginTop: 7,
-      marginLeft: 9,
+      marginTop: 13,
+      marginLeft: 5,
       marginRight: 15
     }
   });
