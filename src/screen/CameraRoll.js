@@ -4,14 +4,24 @@ import { RNCamera, } from 'react-native-camera';
 import storage from '@react-native-firebase/storage';
 import database from '@react-native-firebase/database';
 import uuid from 'react-native-uuid'
+import AsyncStorage from '@react-native-community/async-storage'
 
  //default는 App.js에서만 사용해야 하는 듯 
  export class CameraRoll extends Component {
     constructor(props) {
       console.log(props)
       super(props);
-    };
-
+      this.state = { 
+        userInfo : []
+      }
+    }
+    componentDidMount(){
+      AsyncStorage.getItem('users', (err, result) => {
+        const userInfo = JSON.parse(result)
+       // console.log(result)
+        this.setState({userInfo : userInfo});
+      });
+    }
      takePhoto = async () => {
        if (this.camera) {
         const options = { quality: 0.5, base64: true };
@@ -29,13 +39,14 @@ import uuid from 'react-native-uuid'
       reference.putFile(imageUri)
       .then((response) => {
         console.log('success save picture in firebase')
-        //console.log(response)
-            //DB에 쓰기 
+
+        //DB에 쓰기 
         var date = new Date()
         const data = {
           imageUri:imageUri,
           barcodeValue:barcodeValue,
-          today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
+          today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(),
+          guName : this.state.userInfo.guName
         }
         this.writeDB(data)
       })
@@ -49,10 +60,10 @@ import uuid from 'react-native-uuid'
       console.log("this is writeDB function")
       const userId = '7a4e706747716f7237394373666a43'
       console.log(data.barcodeValue);
-      database().ref( `users/${userId}/${uuid.v4()}`).set({
+      database().ref( `users/${data.guName}/${userId}/${uuid.v4()}`).set({
         profile_picture : data.imageUri,
         barcodeValue: data.barcodeValue,
-        todayDate : data.today
+        todayDate : data.today,
       })
       .then((response) => {
         console.log('success write database')

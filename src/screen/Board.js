@@ -1,30 +1,40 @@
 import React, { Component } from "react";
 import {SafeAreaView, ScrollView, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
 import database from '@react-native-firebase/database';
-//import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-community/async-storage'
+
+const API_KEY_WATER = "7a4e706747716f7237394373666a43"
+const API_KEY_WEATHER = "5272566657716f723734536d526c49"
+const parseString = require('react-native-xml2js').parseString;
 
 export class Board extends Component { 
   constructor(props){
+    console.log("--constructor--")
     super(props);
     this.state = { 
       data : [] , 
-      userInfo : {}
+      weatherData : [],
+      waterData : [],
+      userInfo : {},
+      tabInfo : {}
     }
   }
-  componentDidMount(){
-    console.log("========mount =========")
-         //async 세팅 
-    AsyncStorage.setItem('users',JSON.stringify({'userId': '7a4e706747716f7237394373666a43', 'area': '도봉구'}), () => {
+  componentDidMount = () => {
+    console.log("======== componentDidMount =========")
+
+    //날씨 수질 공공 api
+    this.getWather(11250) 
+    this.getWeather(111121)
+ 
+    AsyncStorage.setItem('users',JSON.stringify({'userId': '7a4e706747716f7237394373666a43', 'guName': '도봉구'}), () => {
       console.log('유저정보 저장 완료')
       AsyncStorage.getItem('users', (err, result) => {
       const userInfo = JSON.parse(result)
       this.setState({userInfo : userInfo});
-    
       const ref = database().ref();
       ref.on("value", rs =>{
           var recycleArray = []
-          var recycleList = rs.val() === null ? null : rs.val().users[this.state.userInfo.userId]
+          var recycleList = rs.val() === null ? null : rs.val().users[userInfo.guName][userInfo.userId]
           for(var i in recycleList){
             recycleArray.push(recycleList[i]);
           }
@@ -35,58 +45,86 @@ export class Board extends Component {
     });
     
   }
-  scanBarcode = () => {
-     var that = this;
-    //To Start Scanning
-    if (Platform.OS === 'android') {
-        async function requestCameraPermission() {
-            try {
-                const granted = await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.CAMERA, {
-                      title: "Cool Photo App Camera Permission",
-                      message:
-                        "Cool Photo App needs access to your camera " +
-                        "so you can take awesome pictures.",
-                      buttonNeutral: "Ask Me Later",
-                      buttonNegative: "Cancel",
-                      buttonPositive: "OK"
-                  }
-                );        
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    //If CAMERA Permission is granted
-                    console.log("user camera")
-                    //TODO BarcodeScanner.js를 호출하세요 
-                    //this가 아니라 that을 사용해야 함 
-                   that.props.navigation.navigate('BarcodeScanner')
-                  // that.props.navigation.navigate('CameraRoll', { onGetBarcode: that.onGetBarcode })
-                } else {
-                    alert("카메라 권한을 받지 못했습니다.");
-                }
-            } catch (err) {
-                alert("카메라 권한 오류: ", err);
-                console.warn(err);
-            }
-        }
-        //Calling the camera permission function
-        requestCameraPermission();
-    } 
-  }
-  recycleLevel= (cnt) => {
-    var imageSrc
-    if(cnt < 2){
-      imageSrc = require("../assets/images/saessak-img-01.png")
-    }else if(cnt < 6){
-      imageSrc = require("../assets/images/saessak-img-02.png")
-    }else if(cnt < 8){
-      imageSrc = require("../assets/images/saessak-img-03.png")
-    }else if(cnt < 10){
-      imageSrc = require("../assets/images/saessak-img-04.png")
-    }else if(cnt >= 10){
-      imageSrc = require("../assets/images/saessak-img-05.png")
-    }
-    return imageSrc
-  }
 
+
+  getWeather = async(guCode) => {
+    var url = `http://openapi.seoul.go.kr:8088/${API_KEY_WEATHER}/xml/ListAirQualityByDistrictService/1/5/${guCode}/`
+    console.log(url) 
+    await fetch(url)
+      .then(response => response.text())
+      .then(data => {
+      //  console.log(data);
+        parseString(data, (err,result) =>{
+          const data = JSON.parse(JSON.stringify(result.ListAirQualityByDistrictService.row[0]));
+          this.setState({weatherData : data});
+          this.selectTab("대기정보")
+          console.log(this.state.weatherData)
+        });
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
+  getWather = async (guCode) => {
+    var url =  `http://openapi.seoul.go.kr:8088/${API_KEY_WATER}/xml/AreaQltwtrSttus/1/5/${guCode}/`
+    console.log(url)
+    await fetch(url)
+    .then(response => response.text())
+    .then(data => {
+          parseString(data, (err,result) =>{
+          const data = JSON.parse(JSON.stringify(result.AreaQltwtrSttus.row[0]));
+          this.setState({waterData : data});
+          console.log(this.state.waterData)
+      });
+    })
+    .catch(error => {
+      console.log(error)
+    });
+  }
+    recycleLevel= (cnt) => {
+      var imageSrc
+      if(cnt < 2){
+        imageSrc = require("../assets/images/saessak-img-01.png")
+      }else if(cnt < 6){
+        imageSrc = require("../assets/images/saessak-img-02.png")
+      }else if(cnt < 8){
+        imageSrc = require("../assets/images/saessak-img-03.png")
+      }else if(cnt < 10){
+        imageSrc = require("../assets/images/saessak-img-04.png")
+      }else if(cnt >= 10){
+        imageSrc = require("../assets/images/saessak-img-05.png")
+      }
+      return imageSrc
+    }
+  
+  scanBarcode = () => {
+    var that = this;
+   //To Start Scanning
+   if (Platform.OS === 'android') {
+       async function requestCameraPermission() {
+           try {
+               const granted = await PermissionsAndroid.request(
+                   PermissionsAndroid.PERMISSIONS.CAMERA, {
+                     title: "Photo App Camera Permission",
+                     message: "Photo App needs access to your camera ",
+                     buttonNeutral: "Ask Me Later",
+                     buttonNegative: "Cancel",
+                     buttonPositive: "OK"
+                 }
+               );        
+               if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                  that.props.navigation.navigate('BarcodeScanner')
+               } else {
+                   alert("카메라 권한을 받지 못했습니다.");
+               }
+           } catch (err) {
+               alert("카메라 권한 오류: ", err);
+               console.warn(err);
+           }
+       }
+       requestCameraPermission();
+   } 
+ }
   createBarcodeYes = () =>
     Alert.alert(
       "선택해주세요",
@@ -100,13 +138,92 @@ export class Board extends Component {
         { text: "네", onPress: () => this.scanBarcode() }
       ]
     );
+    weatherLevel = (num, limit) => {
+      if(num <= limit.good){
+        return "좋음"
+      }else if(num <= limit.normal){
+        return "보통"
+      }else if(num <= limit.bad){
+        return "나쁨"
+      }else{
+        return "매우나쁨"
+      }
+    }
+    ChangeEnvTab = () => {
+      //수온(TE) 탁도(TB) PH3(PH) 32.5%
+      const info = this.state.tabInfo
+      if(!info.tabTitle) return; //state 값이 null이면 리턴
 
+        return (
+          <View style={styles.secondWhiteBoard}>
+            <Text style={styles.환경대기정보}>{info.tabTitle}</Text>
+            <View style={styles.envTitleRow}>          
+              <Text style={styles.title_01}>{info.tabTitleDetail.datail_01}</Text>
+              <Text style={info.tabName === "재활용" ? styles.title_01_water : styles.title_01}>{info.tabTitleDetail.detail_02}</Text>
+              <Text style={styles.title_01}>{info.tabTitleDetail.detail_03}</Text>
+          </View>
+          <View style={styles.envTitleRes}>
+            <Text style={info.tabTitleRes.res_01 === "매우나쁨" ? styles.res_01_red: styles.res_01}>{info.tabTitleRes.res_01}</Text>
+            <Text style={info.tabTitleRes.res_02 === "매우나쁨" ? styles.res_01_red: styles.res_01}>{info.tabTitleRes.res_02}</Text>
+            <Text style={info.tabTitleRes.res_03 === "매우나쁨" ? styles.res_01_red: styles.res_01}>{info.tabTitleRes.res_03}</Text>
+          </View>
+        </View>
+        )
+      
+    }
+
+    selectTab = (tabName) =>{
+      var tabInfo
+      if(tabName === "대기정보"){
+      tabInfo = {
+        tabName : tabName,
+        tabTitle : '환경대기정보',
+        tabTitleDetail : {
+            datail_01 : '미세먼지', detail_02 : '초미세먼지', detail_03 : '오존'
+        },
+        tabTitleRes : {
+          res_01 : this.weatherLevel(this.state.weatherData.PM10, {good: 30 , normal : 80, bad: 150}), 
+          res_02 : this.weatherLevel(this.state.weatherData.OZONE, {good: 30 , normal : 80, bad: 150}),
+          res_03 : this.weatherLevel(this.state.weatherData.OZONE, {good: 30 , normal : 80, bad: 150})
+        }
+      }
+    }else if(tabName ==="재활용"){
+      tabInfo = {
+        tabName : tabName,
+        tabTitle : '재활용 비율 정보',
+        tabTitleDetail : {
+            datail_01 : ' ', detail_02 : '32.5%', detail_03 : ' '
+        },
+        tabTitleRes : {
+          res_01 : '',
+          res_02 : '',
+          res_03 : ''
+        }
+      }
+    }else if(tabName === "수질"){
+      tabInfo = {
+        tabName : tabName,
+        tabTitle : '수질 오염 정보',
+        tabTitleDetail : {
+            datail_01 : '수온', detail_02 : '탁도', detail_03 : 'PH3'
+        },
+        tabTitleRes : {
+          res_01 : this.state.waterData.TE,
+          res_02 : this.state.waterData.TB, 
+          res_03 : this.state.waterData.PH
+        }
+      }
+    }
+
+      this.setState({tabInfo : tabInfo })
+    }
   render() {
     return (
       <SafeAreaView  style={styles.container}>
         <ScrollView style={styles.scrollView}>
         <View style={styles.listBox}>
           <View style={styles.imageStack}>
+
             <ImageBackground
               source={require("../assets/images/background-up.png")}
               resizeMode="contain"
@@ -120,12 +237,13 @@ export class Board extends Component {
                   style={styles.imageSetting}
                 ></Image>
                 <Image
-                  source={require("../assets/images/saessak-logo-02.png")}
+                  source={require("../assets/images/saessak-logo-03.png")}
                   resizeMode="contain"
                   style={styles.saessakLogo}
                 ></Image>
               </View>
             </ImageBackground>
+
             <View style={styles.firstBoard}>
               <View style={styles.whiteBoard}>
                 <View style={styles.whiteBoardView}>
@@ -143,6 +261,7 @@ export class Board extends Component {
                 </View>
               </View>
             </View>
+
               <View style={styles.image9StackStack}>
                 <View style={styles.image9Stack}>
                   <ImageBackground
@@ -154,49 +273,38 @@ export class Board extends Component {
                     <Text style={styles.n건}>{this.state.data.length + "건"}</Text>
                   </ImageBackground>
 
-
                    <TouchableOpacity onPress={this.createBarcodeYes} style={styles.button}>
                     <Text style={styles.startArea}>
                         시작하기
                     </Text>
                   </TouchableOpacity>
                 </View>
+
                 <View style={styles.서초구5Stack}>
-                  <Text style={styles.서초구5}>{this.state.userInfo.area}</Text>
+                  <Text style={styles.서초구5}>{this.state.userInfo.guName}</Text>
                   <Text style={styles.서초구4}>2위</Text>
                 </View>
               </View>
+
           </View>
 
           <View style={styles.secondBoard}>
-            <View style={styles.secondBoard2}>
-              <View style={styles.airPollution}>
-                <Text style={styles.airPollutionTxt}>대기오염</Text>
-              </View>
-              <View style={styles.recyclingRate}>
-                <Text style={styles.recyclingRateTxt}>재활용 비율</Text>
-              </View>
-              <View style={styles.waterQuality}>
-                <Text style={styles.waterQualityTxt}>수질</Text>
-              </View>
+            <View style={styles.secondBoard_02}>
+            <TouchableOpacity onPress={() => {this.selectTab("대기정보")}} style={this.state.tabInfo.tabName === "대기정보" ?  styles.secondBoardTab_selected : styles.secondBoardTab}>
+                    <Text style={this.state.tabInfo.tabName === "대기정보" ? styles.secondBoardTabTxt_selected : styles.secondBoardTabTxt}>대기오염</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {this.selectTab("재활용")}} style={this.state.tabInfo.tabName === "재활용" ?  styles.secondBoardTab_selected : styles.secondBoardTab}>
+                    <Text style={this.state.tabInfo.tabName === "재활용" ? styles.secondBoardTabTxt_selected : styles.secondBoardTabTxt}>재활용 비율</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {this.selectTab("수질")}} style={this.state.tabInfo.tabName === "수질" ?  styles.secondBoardTab_selected : styles.secondBoardTab}>
+                    <Text style={this.state.tabInfo.tabName === "수질" ? styles.secondBoardTabTxt_selected : styles.secondBoardTabTxt}>수질</Text>
+            </TouchableOpacity>
             </View>
-            <View style={styles.secondWhiteBoard}>
-              <Text style={styles.환경대기정보}>환경 대기 정보</Text>
-              <View style={styles.매우나쁨Row}>
-                <Text style={styles.매우나쁨}>매우나쁨</Text>
-                <Text style={styles.나쁨2}>나쁨</Text>
-                <Text style={styles.보통}>보통</Text>
-                <Text style={styles.나쁨3}>나쁨</Text>
-              </View>
-              <View style={styles.보통3Row}>
-                <Text style={styles.보통3}>보통</Text>
-                <Text style={styles.보통4}>보통</Text>
-                <Text style={styles.보통2}>보통</Text>
-                <Text style={styles.보통5}>보통</Text>
-              </View>
-            </View>
+            {this.ChangeEnvTab()}
           </View>
         </View>
+
+
 
         {
           this.state.data.map((value,index) => {
@@ -252,9 +360,9 @@ export class Board extends Component {
     },
     image_imageStyle: {},
     imageSetting: {
-      height: 30,
-      width: 30,
-      marginTop: -8,
+      height: 28,
+      width: 28,
+      marginTop: -7,
       marginLeft: -2
     },
     saessakLogo: {
@@ -406,48 +514,35 @@ export class Board extends Component {
       backgroundColor: "rgba(239,249,236,1)",
       borderRadius: 15
     },
-    airPollution: {
-      width: 120,
-      height: 25,
+    secondBoardTab : {
+      width: 108,
+      height: 30,
+      left: 5,
+      backgroundColor: "rgba(241,249,237,0.6)",
+      borderRadius: 5
+    },
+    secondBoardTab_selected : {
+      width: 108,
+      height: 30,
+      left: 5,
       backgroundColor: "rgba(108,197,124,1)",
       borderRadius: 5
     },
-    airPollutionTxt: {
+    secondBoardTabTxt: {
+      fontFamily: "roboto-regular",
+      color: "rgba(6,6,6,1)",
+      textAlign: "center",
+      fontSize: 12,
+      marginTop: 4,
+    },
+    secondBoardTabTxt_selected: {
       fontFamily: "roboto-regular",
       color: "rgba(255,255,255,1)",
       textAlign: "center",
       fontSize: 12,
       marginTop: 4
     },
-    recyclingRate: {
-      width: 100,
-      height: 25,
-      backgroundColor: "rgba(241,249,237,0.6)",
-      borderRadius: 5
-    },
-    recyclingRateTxt: {
-      fontFamily: "roboto-regular",
-      color: "rgba(6,6,6,1)",
-      textAlign: "center",
-      fontSize: 12,
-      marginTop: 4,
-      marginLeft: 0
-    },
-    waterQuality: {
-      width: 100,
-      height: 25,
-      backgroundColor: "rgba(241,249,237,0.6)",
-      borderRadius: 5
-    },
-    waterQualityTxt: {
-      fontFamily: "roboto-regular",
-      color: "rgba(6,6,6,1)",
-      textAlign: "center",
-      fontSize: 12,
-      marginTop: 4,
-      marginLeft: 0
-    },
-    secondBoard2: {
+    secondBoard_02: {
       height: 25,
       flexDirection: "row",
       marginTop: 15,
@@ -456,10 +551,10 @@ export class Board extends Component {
     },
     secondWhiteBoard: {
       width: 330,
-      height: 110,
+      height: 115,
       backgroundColor: "rgba(255,255,255,0.6)",
       borderRadius: 15,
-      marginTop: 10,
+      marginTop: 5,
       marginLeft: 15
     },
     환경대기정보: {
@@ -467,75 +562,58 @@ export class Board extends Component {
       color: "rgba(0,0,0,1)",
       textAlign: "center",
       fontSize: 15,
-      marginTop: 8
+      marginTop: 12
     },
-    매우나쁨: {
-      fontFamily: "roboto-700",
-      color: "rgba(249,6,6,1)",
-      textAlign: "center",
-      fontSize: 15
-    },
-    나쁨2: {
-      fontFamily: "roboto-700",
-      color: "rgba(0,0,0,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 34
-    },
-    보통: {
-      fontFamily: "roboto-700",
-      color: "rgba(0,0,0,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 39
-    },
-    나쁨3: {
-      fontFamily: "roboto-700",
-      color: "rgba(0,0,0,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 40
-    },
-    매우나쁨Row: {
+    envTitleRow: {
       height: 20,
       flexDirection: "row",
-      marginTop: 12,
-      marginLeft: 17,
-      marginRight: 36
+      marginTop: 10,
+      marginLeft: 20,
+      marginRight : 20
     },
-    보통3: {
-      fontFamily: "roboto-regular",
-      color: "rgba(158,158,158,1)",
-      textAlign: "center",
-      fontSize: 15
-    },
-    보통4: {
-      fontFamily: "roboto-regular",
-      color: "rgba(158,158,158,1)",
+    title_01: {
+      width: 70,
+      height: 20,
+      fontFamily: "roboto-700",
+      color: "rgba(0,0,0,1)",
       textAlign: "center",
       fontSize: 15,
-      marginLeft: 49
+      marginLeft: 20
     },
-    보통2: {
-      fontFamily: "roboto-regular",
+    title_01_water: {
+      width: 100,
+      height: 40,
+      fontFamily: "roboto-700",
       color: "rgba(158,158,158,1)",
       textAlign: "center",
-      fontSize: 15,
-      marginLeft: 39
+      fontSize: 20,
+      marginTop: 3,
+      marginLeft: 5
     },
-    보통5: {
-      fontFamily: "roboto-regular",
-      color: "rgba(158,158,158,1)",
-      textAlign: "center",
-      fontSize: 15,
-      marginLeft: 40
-    },
-    보통3Row: {
+    envTitleRes: {
       height: 20,
       flexDirection: "row",
-      marginTop: 5,
-      marginLeft: 32,
-      marginRight: 36
+      marginTop: 6,
+      marginLeft: 20,
+      marginRight : 20
+    },
+    res_01: {
+      width: 70,
+      height: 20,
+      fontFamily: "roboto-regular",
+      color: "rgba(158,158,158,1)",
+      textAlign: "center",
+      fontSize: 15,
+      marginLeft: 20
+    },
+    res_01_red :{
+      width: 70,
+      height: 20,
+      fontFamily: "roboto-regular",
+      color: "red",
+      textAlign: "center",
+      fontSize: 15,
+      marginLeft: 20
     },
     listBox: {
       width: 380,
