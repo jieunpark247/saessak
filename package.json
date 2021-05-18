@@ -26,9 +26,11 @@
     "react-native-image-picker": "^3.6.0",
     "react-native-reanimated": "^2.1.0",
     "react-native-safe-area-context": "^3.2.0",
-    "react-native-webview": "^11.4.4",
     "react-native-screens": "^3.2.0",
-    "react-native-uuid": "^2.0.1"
+    "react-native-uuid": "^2.0.1",
+    "react-native-webview": "^11.4.4",
+    "react-native-xml2js": "^1.0.3",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@babel/core": "7.14.0",
