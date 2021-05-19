@@ -217,6 +217,10 @@ export class Board extends Component {
 
       this.setState({tabInfo : tabInfo })
     }
+
+    moveGuPage = () => {
+      this.props.navigation.navigate('Ranking')
+    }
   render() {
     return (
       <SafeAreaView  style={styles.container}>
@@ -279,11 +283,11 @@ export class Board extends Component {
                     </Text>
                   </TouchableOpacity>
                 </View>
-
-                <View style={styles.서초구5Stack}>
-                  <Text style={styles.서초구5}>{this.state.userInfo.guName}</Text>
-                  <Text style={styles.서초구4}>2위</Text>
-                </View>
+               
+                <TouchableOpacity onPress={this.moveGuPage} style={styles.myGuStack}>
+                  <Text style={styles.myGu}>{this.state.userInfo.guName}</Text>
+                  <Text style={styles.guGrade}>2위</Text>
+                </TouchableOpacity>
               </View>
 
           </View>
@@ -360,16 +364,16 @@ export class Board extends Component {
     },
     image_imageStyle: {},
     imageSetting: {
-      height: 28,
-      width: 28,
+      height: 25,
+      width: 25,
       marginTop: -7,
       marginLeft: -2
     },
     saessakLogo: {
-      height: 40,
-      width: 40,
-      marginLeft: 320,
-      marginTop: -8
+      height: 35,
+      width: 35,
+      marginLeft: 330,
+      marginTop: -5
     },
     imageSettingRow: {
       height: 40,
@@ -464,32 +468,31 @@ export class Board extends Component {
       height: 108,
       position: "absolute"
     },
-    서초구5: {
-      top: 220,
-      left: 145,
-      position: "absolute",
+    myGu: {
+      top: 15,
+      left: 0,
       fontFamily: "roboto-700",
       color: "rgba(37,119,62,1)",
-      height: 23,
-      width: 52,
-      fontSize: 15
-    },
-    서초구4: {
-      top: 235,
-      left: 151,
-      position: "absolute",
-      fontFamily: "roboto-700",
-      color: "#121212",
-      height: 23,
-      width: 34,
+      height: 20,
       fontSize: 15,
       textAlign: "center"
     },
-    서초구5Stack: {
-      top: 0,
-      left: 119,
-      width: 52,
-      height: 38,
+    guGrade: {
+      top: 15,
+      left: 0,
+      fontFamily: "roboto-700",
+      color: "#121212",
+      height: 20,
+      fontSize: 15,
+      textAlign: "center"
+    },
+    myGuStack: {
+     // backgroundColor: "red",
+      top: 201,
+      left: 248,
+      width: 72,
+      height: 72,
+      borderRadius: 50,
       position: "absolute"
     },
     image9StackStack: {
