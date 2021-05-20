@@ -2,13 +2,12 @@
  import { StyleSheet,View, Text} from 'react-native';
 
   const RankItem = ({
-    keys,
     item
   }) => {
       return (
         <View style={styles.rect}>
             <View style={styles.rankBox}>
-              <Text style={styles.rankText}>{keys+1}위</Text>
+              <Text style={styles.rankText}>{item.rank}위</Text>
             </View>
             <Text style={styles.guText}>{item.guName}</Text>
             <Text style={styles.guCnt}>{item.guCnt}건</Text>

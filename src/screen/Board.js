@@ -15,7 +15,8 @@ export class Board extends Component {
       weatherData : [],
       waterData : [],
       userInfo : {},
-      tabInfo : {}
+      tabInfo : {},
+      rankArray: []
     }
   }
   componentDidMount = () => {
@@ -36,12 +37,39 @@ export class Board extends Component {
    
       const ref = database().ref();
       ref.on("value", rs =>{
-          var recycleArray = []
+          var recycleArray = [];
           var recycleList = rs.val() === null ? null : rs.val().users[userInfo.guName][userInfo.userId]
           for(var i in recycleList){
             recycleArray.push(recycleList[i]);
           }
-          this.setState({data : recycleArray});
+
+          const guList = rs.val().users;
+          let rankArray = [];
+          for(let gu in guList){
+            const userList = guList[gu];
+            let guCnt = 0;
+            for (let user in userList) {
+                guCnt += Object.keys(userList[user]).length;
+            }
+            const guData = {guName:gu, guCnt:guCnt};
+            rankArray.push(guData);
+          }
+          
+          rankArray.sort(function(a, b) {
+            return b.guCnt - a.guCnt;
+          });
+              
+          let rank = 1;
+          const len = rankArray.length;
+          for(let i=0; i<len; i++){
+            rankArray[i].rank = rank;
+            if(i==len-1) break;
+            if(rankArray[i].guCnt>rankArray[i+1].guCnt) rank++;
+          }
+          console.log('rankArray');
+          console.log(rankArray);
+
+          this.setState({data : recycleArray, rankArray:rankArray});
         });
 
       });
@@ -221,9 +249,17 @@ export class Board extends Component {
     }
 
     moveGuPage = () => {
-      this.props.navigation.navigate('Ranking')
+      this.props.navigation.navigate('Ranking',{data:this.state.rankArray})
     }
+
   render() {
+    const rankArray = this.state.rankArray;
+    let rank = '-';
+    rankArray.map(item=>{
+      if(item.guName == this.state.userInfo.guName){
+        rank=item.rank;
+      }
+    })
     return (
       <SafeAreaView  style={styles.container}>
         <ScrollView style={styles.scrollView}>
@@ -288,7 +324,7 @@ export class Board extends Component {
                
                 <TouchableOpacity onPress={this.moveGuPage} style={styles.myGuStack}>
                   <Text style={styles.myGu}>{this.state.userInfo.guName}</Text>
-                  <Text style={styles.guGrade}>2위</Text>
+                  <Text style={styles.guGrade}>{rank+'위'}</Text>
                 </TouchableOpacity>
               </View>
 

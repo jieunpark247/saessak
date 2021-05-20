@@ -1,21 +1,17 @@
  import React, { Component } from 'react';
  import { StyleSheet, Alert, View, Text, FlatList, Toast } from 'react-native';
  import { WebView } from 'react-native-webview';
- import RankItem from '../components/RankItem'
+ import RankItem from '../components/RankItem';
  
  export class Ranking extends Component {
     constructor(){
         super();
  
         this.state={
-            datas:[
-                {key:0, guName:"강남구",guCnt:200},
-                {key:1, guName:"서초구",guCnt:180},
-                {key:2, guName:"마포구",guCnt:74},
-                {key:3, guName:"영등포구",guCnt:50},
-                {key:4, guName:"중랑구",guCnt:40},
-                {key:5, guName:"강북구",guCnt:22}
-            ]
+            guData:[
+                "종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"
+            ],
+            data: []
         };
     }
 
@@ -45,8 +41,9 @@
                 <View style={styles.rankListArea}>
                     <Text style={styles.chartTitle}>지역구 순위</Text>
                     <FlatList 
-                        data={this.state.datas}
-                        renderItem={( obj )=>{return <RankItem keys={obj.index} item={obj.item} ></RankItem>}}>
+                        data={this.props.route.params.data}
+                        keyExtractor={(item, index) => index}
+                        renderItem={( obj )=>{return <RankItem item={obj.item} ></RankItem>}}>
                     </FlatList>
                 </View>
              </View>
