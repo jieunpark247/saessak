@@ -1,0 +1,102 @@
+{
+    "guCategory" : [
+        {
+            "guName":  "강남구",
+            "guCode" : "11230"
+        },
+        {
+            "guName":  "강동구",
+            "guCode" : "11250"
+        },
+        {
+            "guName":  "강북구",
+            "guCode" : "11090"
+        },        {
+            "guName":  "강서구",
+            "guCode" : "11160"
+        },
+        {
+            "guName":  "관악구",
+            "guCode" : "11210"
+        },
+        {
+            "guName":  "광진구",
+            "guCode" : "11050"
+        },
+        {
+            "guName":  "구로구",
+            "guCode" : "11170"
+        },
+        {
+            "guName":  "금천구",
+            "guCode" : "11180"
+        },
+        {
+            "guName":  "노원구",
+            "guCode" : "11110"
+        },
+        {
+            "guName":  "도봉구",
+            "guCode" : "11100"
+        },
+        {
+            "guName":  "동대문구",
+            "guCode" : "11060"
+        },
+        {
+            "guName":  "동작구",
+            "guCode" : "11200"
+        },
+        {
+            "guName":  "마포구",
+            "guCode" : "11140"
+        },
+        {
+            "guName":  "서대문구",
+            "guCode" : "11130"
+        },
+        {
+            "guName":  "서초구",
+            "guCode" : "11220"
+        },
+        {
+            "guName":  "성동구",
+            "guCode" : "11040"
+        },
+        {
+            "guName":  "성북구",
+            "guCode" : "11080"
+        },
+        {
+            "guName":  "송파구",
+            "guCode" : "11240"
+        },
+        {
+            "guName":  "양천구",
+            "guCode" : "11150"
+        },
+        {
+            "guName":  "영등포구",
+            "guCode" : "11190"
+        },
+        {
+            "guName":  "용산구",
+            "guCode" : "11030"
+        },
+        {
+            "guName":  "은평구",
+            "guCode" : "11120"
+        },    {
+            "guName":  "종로구",
+            "guCode" : "11010"
+        },
+        {
+            "guName":  "중구",
+            "guCode" : "11020"
+        },
+        {
+            "guName":  "중랑구",
+            "guCode" : "11070"
+        }
+    ]
+}
