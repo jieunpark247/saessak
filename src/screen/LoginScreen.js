@@ -40,7 +40,7 @@ async function onGoogleButtonPress() {
     const user = auth().currentUser;
 
     console.log('Signed in with Google! 4' + user.uid);
- //   AsyncStorage.setItem('users' ,JSON.stringify({ userId: user.uid, 'email': user.email, guName: inputText })) //이렇게 넣어줘 
+ //   AsyncStorage.setItem('users' ,JSON.stringify({ userId: user.uid, 'email': user.email, 'guName': inputText })) //이렇게 넣어줘 
     AsyncStorage.setItem('email', user.email);
     AsyncStorage.setItem('uid', user.uid);
 
