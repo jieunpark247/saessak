@@ -2,14 +2,13 @@ import React, { Component } from "react";
 import {SafeAreaView, ScrollView, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-community/async-storage'
-
+import guInfo from '../../guInfo.json'
 const API_KEY_WATER = "7a4e706747716f7237394373666a43"
 const API_KEY_WEATHER = "5272566657716f723734536d526c49"
 const parseString = require('react-native-xml2js').parseString;
 
 export class Board extends Component { 
   constructor(props){
-    console.log("--constructor--")
     super(props);
     this.state = { 
       data : [] , 
@@ -21,16 +20,20 @@ export class Board extends Component {
   }
   componentDidMount = () => {
     console.log("======== componentDidMount =========")
-
     //날씨 수질 공공 api
-    this.getWather(11250) 
-    this.getWeather(111121)
- 
-    AsyncStorage.setItem('users',JSON.stringify({'userId': '7a4e706747716f7237394373666a43', 'guName': '도봉구'}), () => {
+    AsyncStorage.setItem('users',JSON.stringify({'userId': '7a4e706747716f7237394373666a43', 'guName': '강남구'}), () => {
       console.log('유저정보 저장 완료')
       AsyncStorage.getItem('users', (err, result) => {
-      const userInfo = JSON.parse(result)
+      var userInfo = JSON.parse(result)
+      const myGuInfo = guInfo.guCategory.filter(item => `${item.guName}` === userInfo.guName); //나의 ㅇㅇ구 정보 불러오기 
+      userInfo.guCode = myGuInfo[0].guCode // 구 코드 추가
       this.setState({userInfo : userInfo});
+
+      //날씨 API 추가 
+      console.log(this.state.userInfo.guCode)
+      this.getWather(this.state.userInfo.guCode) 
+      this.getWeather(this.state.userInfo.guCode)
+   
       const ref = database().ref();
       ref.on("value", rs =>{
           var recycleArray = []
@@ -45,8 +48,7 @@ export class Board extends Component {
     });
     
   }
-
-
+ 
   getWeather = async(guCode) => {
     var url = `http://openapi.seoul.go.kr:8088/${API_KEY_WEATHER}/xml/ListAirQualityByDistrictService/1/5/${guCode}/`
     console.log(url) 
