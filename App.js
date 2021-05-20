@@ -8,7 +8,7 @@ const navOptionHandler = () => ({
   headerShown: false,
 });
 
-const StackApp = createStackNavigator();
+const StackApp = createStackNavigator(); 
 
 export default function App() {
   return (
