@@ -70,7 +70,7 @@ export class Board extends Component {
     const ref = database().ref();
     ref.on("value", rs =>{
         var recycleArray = [];
-        if(rs.val() === null || rs.val() == 0 ) return;
+        if(rs.val() === null || rs.val().users[userInfo.guName] ==null ) return 
         var recycleList = rs.val().users[userInfo.guName][userInfo.userId]
         for(var i in recycleList){
           recycleArray.push(recycleList[i]);
