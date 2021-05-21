@@ -17,42 +17,62 @@ import {
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-import {NavigationContainer} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
-import {Button} from 'react-native';
+//import {NavigationContainer} from '@react-navigation/native';
+import React, {useEffect, useState, Component} from 'react';
+//import {Button} from 'react-native';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-community/async-storage';
-import {createStackNavigator} from '@react-navigation/stack';
+//import {createStackNavigator} from '@react-navigation/stack';
+//import {Dropdown} from 'react-native-material-dropdown';
+//import DropDownPicker from 'react-native-dropdown-picker';
+//import {Picker} from '@react-native-community/picker';
 
-async function onGoogleButtonPress() {
+import {Picker} from '@react-native-picker/picker';
+//import {Dropdown} from 'react-native-material-dropdown-v2';
+/*
+class Example extends Component {
+  render() {
+    let data = [
+      {
+        value: 'Banana',
+      },
+      {
+        value: 'Mango',
+      },
+      {
+        value: 'Pear',
+      },
+    ];
+
+    return <Dropdown label="Favorite Fruit" data={data} />;
+  }
+}*/
+
+async function onGoogleButtonPress(inputText) {
   // Get the users ID token
   try {
-    console.log('Signed in with Google! 1');
+    // GoogleSignin을 통해 토큰 얻어오기
     const {idToken} = await GoogleSignin.signIn();
 
-    console.log('Signed in with Google! 2');
     // Create a Google credential with the token
+
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
     auth().signInWithCredential(googleCredential);
 
-    console.log('Signed in with Google! 3');
+    const user = auth().currentUser; // 현재 유저 데이터 가져오기
 
-    const user = auth().currentUser;
+    AsyncStorage.setItem(
+      'users',
+      JSON.stringify({
+        userId: user.uid,
+        email: user.email,
+        guName: inputText,
+      }),
+    ); // 유저스에 데이터 넣기 , 유저아이디는 구글에서 얻어고, 지역구값은 ui에서 얻어온다.
 
-    console.log('Signed in with Google! 4' + user.uid);
- //   AsyncStorage.setItem('users' ,JSON.stringify({ userId: user.uid, 'email': user.email, 'guName': inputText })) //이렇게 넣어줘 
-    AsyncStorage.setItem('email', user.email);
-    AsyncStorage.setItem('uid', user.uid);
+    AsyncStorage.setItem('session', 'login'); // 유저스에 데이터 넣기 , 유저아이디는 구글에서 얻어고, 지역구값은 ui에서 얻어온다.
 
-    AsyncStorage.setItem('district', inputText);
-
-
-    AsyncStorage.getItem('email', (err, result) => {
-      //user_id에 담긴 아이디 불러오기
-      console.log(result); // result에 담김 //불러온거 출력
-    });
-
-    return idToken;
+    return idToken; // 토큰값 리턴
 
     // Sign-in the user with the credential
   } catch (error) {
@@ -72,11 +92,7 @@ async function onGoogleButtonPress() {
   }
 }
 
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-community/google-signin';
+import {GoogleSignin, statusCodes} from '@react-native-community/google-signin';
 
 GoogleSignin.configure({
   webClientId:
@@ -88,8 +104,10 @@ GoogleSignin.configure({
 
 function LoginScreen({navigation}) {
   const isDarkMode = useColorScheme() === 'dark';
-  const [district, setDistrict] = useState('');
   const [inputText, setInputText] = useState('');
+
+  const [value, setValue] = useState('');
+  const values = [{age: 'option1', name: 'option2'}];
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -97,15 +115,13 @@ function LoginScreen({navigation}) {
   let userToken = null;
 
   useEffect(() => {
-    console.log('컴포넌트가 화면에 나타남');
-
     userToken = AsyncStorage.getItem('uid');
     console.log('변수' + userToken.uid);
 
-    AsyncStorage.getItem('district', (err, result) => {
-      setDistrict(result);
-      console.log(district);
-      //user_id에 담긴 아이디 불러오기
+    AsyncStorage.getItem('users', (err, result) => {
+      const UserInfo = JSON.parse(result);
+
+      setInputText(UserInfo.guName);
     });
 
     return () => {
@@ -113,86 +129,52 @@ function LoginScreen({navigation}) {
     };
   }, []);
 
-  if (!userToken) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ImageBackground
-                source={require('../assets/images/saessak_head.png')}
-                resizeMode="contain"
-                style={styles.backImage}>
-               
-          <View style={styles.row_01}>
-            <View style={styles.logoSettingRow}>   
-              <Image
-                source={require('../assets/images/saessak-logo-03.png')}
-                resizeMode="contain"
-              />
-            </View>
-            <View>
-              <Text style={styles.logoStyle}>새싹</Text>
-            </View>
-          </View> 
-        <Text style={styles.textStyle}>지역구를 입력하세요.</Text>
-      
-       </ImageBackground>
-       <TextInput
-            style = {styles.inputBox}
-            placeholder={district}
-            value={inputText}
-            onChangeText={value => setInputText(value)}
-          />
-      <View style={styles.root}>
-         <TouchableOpacity
-              onPress={() =>
-                onGoogleButtonPress().then(() => console.log('Signed Google!'))
-              }
-              style={styles.button_01}>
-             <Image
-              source={require('../assets/images/google.login.png')}
-              style ={styles.loginImg}
+  return (
+    <SafeAreaView style={styles.container}>
+      <ImageBackground
+        source={require('../assets/images/saessak_head.png')}
+        resizeMode="contain"
+        style={styles.backImage}>
+        <View style={styles.row_01}>
+          <View style={styles.logoSettingRow}>
+            <Image
+              source={require('../assets/images/login_logo_small.png')}
+              resizeMode="contain"
             />
-        </TouchableOpacity>
-       
-          <TouchableOpacity
-              onPress={() =>
-                onGoogleButtonPress().then(() => console.log('Signed Google!'))
-              }
-              style={styles.button_02}>
-              <Image
-              source={require('../assets/images/google.login.png')}
-              style ={styles.loginImg}
-            />
-          </TouchableOpacity>
-
-          <ImageBackground
-                source={require('../assets/images/saessak_bottom.png')}
-                style={styles.imageDown}>
-        </ImageBackground>
-        </View>
-      </SafeAreaView>
-    );
-  } else {
-    return (
-      <SafeAreaView style={backgroundStyle}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={backgroundStyle}>
-          <View
-            style={{
-              backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            }}>
-            <View title="Login">
-              <Button
-                title="시작하기"
-                onPress={() => navigation.navigate('Board')}
-              />
-            </View>
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+          <View>
+            <Text style={styles.logoStyle}>새싹</Text>
+          </View>
+        </View>
+        <Text style={styles.textStyle}>지역구를 입력하세요.</Text>
+      </ImageBackground>
+      <TextInput
+        style={styles.inputBox}
+        placeholder={inputText}
+        value={inputText}
+        onChangeText={value => setInputText(value)}
+      />
+      {/*<Example></Example>*/}
+      <View style={styles.root}>
+        <TouchableOpacity
+          onPress={() =>
+            onGoogleButtonPress(inputText).then(() =>
+              navigation.navigate('Board'),
+            )
+          }
+          style={styles.button_01}>
+          <Image
+            source={require('../assets/images/google.login.png')}
+            style={styles.loginImg}
+          />
+        </TouchableOpacity>
+
+        <ImageBackground
+          source={require('../assets/images/saessak_bottom.png')}
+          style={styles.imageDown}></ImageBackground>
+      </View>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -209,9 +191,9 @@ const styles = StyleSheet.create({
     height: 200,
     alignItems: 'center',
   },
-  row_01 : {
-    top: 280,
-},
+  row_01: {
+    top: 300,
+  },
   logoStyle: {
     top: 20,
     textAlign: 'center',
@@ -221,11 +203,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   logoSettingRow: {
-    top: 20,
+    top: -80,
+    width: '10%',
+    height: '10%',
     alignItems: 'center',
   },
   textStyle: {
-    top: 315,
+    top: 365,
     textAlign: 'center',
     fontFamily: 'roboto-700',
     color: 'rgba(60,130,70,1)',
@@ -234,12 +218,12 @@ const styles = StyleSheet.create({
   },
   inputBox: {
     top: 225,
-    left : 104,
+    left: 104,
     alignItems: 'center',
     textAlign: 'center',
     borderWidth: 2,
     backgroundColor: 'white',
-    color : 'black',
+    color: 'black',
     borderColor: 'green',
     height: 40,
     width: 210,
@@ -248,7 +232,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   button_01: {
-    marginTop:70,
+    marginTop: 70,
     width: '100%',
     height: 90,
     borderRadius: 40,
@@ -260,19 +244,19 @@ const styles = StyleSheet.create({
     height: 110,
   },
   button_02: {
-    marginTop:130,
+    marginTop: 130,
     width: '100%',
     height: 90,
     borderRadius: 40,
     position: 'absolute',
     alignItems: 'center',
   },
-  imageDown :{
+  imageDown: {
     alignItems: 'center',
-    bottom : -250,
+    bottom: -250,
     width: '100%',
     height: 200,
-  }
+  },
 });
 
 export default LoginScreen;

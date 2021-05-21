@@ -11,9 +11,33 @@
 </div>
 </body>
 <script>
+    var rank = {};
     $(function(){
         initMap();
     });
+
+    document.addEventListener("message", function(data) {
+        rank =  data.data;
+	})
+
+    function coloring(d){
+        var guName = d.properties.SIG_KOR_NM;
+        var color;
+        var ranking = rank[guName];
+        switch(ranking){
+            case 1: color='#1D6038'
+                break;
+            case 2: color='#317546'
+                break;
+            case 3: color='#4E915C'
+                break;
+            case 4: color='#71AD79'
+                break;
+            default: color='#9BCA9D'
+                break;
+        }
+        return color;
+    }
 
     function initMap () {
         d3.json('./seoul_municipalities_topo_simple.json')
@@ -44,14 +68,11 @@
             projection.scale(scale).translate(offset);
 
             function guClick (d) {
-                Toast.postMessage(d.properties.SIG_KOR_NM);
-                console.log('23df4'+d.properties.SIG_KOR_NM);
-                alert('dfdf');
-                d3.select(this).style('fill', '#9BCA9D');
+                window.ReactNativeWebView.postMessage(d.properties.SIG_KOR_NM);
             }
 
             function guNameClick (d) {
-                Toast.postMessage(d.properties.SIG_KOR_NM, "*");
+                window.ReactNativeWebView.postMessage(d.properties.SIG_KOR_NM);
             }
 
             function guMouseOver (d) {
@@ -59,7 +80,7 @@
             }
 
             function guMouseOut (d) {
-                d3.select(this).style('fill', '#9BCA9D');
+                d3.select(this).style('fill', coloring(d));
             }
 
             map
@@ -68,6 +89,7 @@
                 .enter()
                 .append('path')
                 .attr('d', path)
+                .attr("fill", coloring)
                 .on('click', guClick)
                 .on('mouseout', guMouseOut)
                 .on('mouseover', guMouseOver);
@@ -86,13 +108,7 @@
         });
     }
 </script>
-<style lang="css">
-    /*.map-wrapper {*/
-    /*    width: 512px;*/
-    /*    height: 512px;*/
-    /*}*/
-
-    
+<style lang="css">    
     *:not(input) {
     user-select: none;
     }
@@ -102,7 +118,7 @@
     }
 
     svg path {
-        fill: #9BCA9D;
+        /* fill: #9BCA9D; */
         stroke: white;
     }
 
