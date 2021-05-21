@@ -50,7 +50,7 @@ const SplashScreen = ({navigation}) => {
     <View style={styles.container}>
       <View>
         <Image
-          source={require('../assets/images/first_splash.png')}
+          source={require('../assets/images/splash1.png')}
           style={{
             resizeMode: 'contain',
             //margin: 30,
