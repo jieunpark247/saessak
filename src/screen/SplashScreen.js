@@ -50,8 +50,11 @@ const SplashScreen = ({navigation}) => {
     <View style={styles.container}>
       <View>
         <Image
-          source={require('../assets/images/background-up.png')}
-          style={{width: 55, resizeMode: 'contain', margin: 30}}
+          source={require('../assets/images/first_splash.png')}
+          style={{
+            resizeMode: 'contain',
+            //margin: 30,
+          }}
         />
       </View>
       <ActivityIndicator
@@ -74,6 +77,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   activityIndicator: {
+    top: 200,
     alignItems: 'center',
     height: 80,
   },
