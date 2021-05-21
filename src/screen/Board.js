@@ -34,31 +34,28 @@ export class Board extends Component {
   componentDidMount = () => {
     console.log('======== componentDidMount =========');
     //날씨 수질 공공 api
-    AsyncStorage.setItem(
-      'users',
-      JSON.stringify({
-        userId: '7a4e706747716f7237394373666a43',
-        guName: '강남구',
-      }),
-      () => {
         console.log('유저정보 저장 완료');
         AsyncStorage.getItem('users', (err, result) => {
           var userInfo = JSON.parse(result);
-          const myGuInfo = guInfo.guCategory.filter(
+          const myGuWeatherInfo = guInfo.guCtgrWeather.filter(
             item => `${item.guName}` === userInfo.guName,
-          ); //나의 ㅇㅇ구 정보 불러오기
-          userInfo.guCode = myGuInfo[0].guCode; // 구 코드 추가
+          ); //나의  ㅇㅇ구 정보 불러오기
+          const myGuWaterInfo = guInfo.guCtgrWater.filter(
+            item => `${item.guName}` === userInfo.guName,
+          ); //나의  ㅇㅇ구 정보 불러오기
+          userInfo.guWeatherCode = myGuWeatherInfo[0].guCode; // 구 코드 추가
+          userInfo.guWaterCode = myGuWaterInfo[0].guCode; // 구 코드 추가
           this.setState({userInfo: userInfo});
 
       //날씨 API 추가 
-      console.log(this.state.userInfo.guCode)
-      this.getWather(this.state.userInfo.guCode) 
-      this.getWeather(this.state.userInfo.guCode)
+      console.log(this.state.userInfo.guWaterCode + '  , ' + this.state.userInfo.guWeatherCode)
+      this.getWather(this.state.userInfo.guWaterCode) 
+      this.getWeather(this.state.userInfo.guWeatherCode)
    
       const ref = database().ref();
       ref.on("value", rs =>{
           var recycleArray = [];
-          var recycleList = rs.val() === null ? null : rs.val().users[userInfo.guName][userInfo.userId]
+          var recycleList = rs.val() === null ? null : rs.val().users[userInfo.guName][userInfo.uid]
           for(var i in recycleList){
             recycleArray.push(recycleList[i]);
           }
@@ -92,8 +89,6 @@ export class Board extends Component {
           this.setState({data : recycleArray, rankArray:rankArray});
           });
         });
-      },
-    );
   };
 
   getWeather = async guCode => {
@@ -332,7 +327,7 @@ export class Board extends Component {
           <View style={styles.listBox}>
             <View style={styles.imageStack}>
               <ImageBackground
-                source={require('../assets/images/background-up.png')}
+                source={require('../assets/images/saessak_head.png')}
                 resizeMode="contain"
                 style={styles.image}
                 imageStyle={styles.image_imageStyle}>
