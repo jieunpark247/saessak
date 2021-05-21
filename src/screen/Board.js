@@ -37,25 +37,31 @@ export class Board extends Component {
         console.log('유저정보 저장 완료');
         AsyncStorage.getItem('users', (err, result) => {
           var userInfo = JSON.parse(result);
+          console.log("테스트 데이터로 실행중 ... 지워야합니다.")
+          userInfo.userId ='7a4e706747716f7237394373666a43'
+          userInfo.guName = '강남구' // 삭제하기 >> 테스트 데이터 
+
           const myGuWeatherInfo = guInfo.guCtgrWeather.filter(
             item => `${item.guName}` === userInfo.guName,
           ); //나의  ㅇㅇ구 정보 불러오기
           const myGuWaterInfo = guInfo.guCtgrWater.filter(
             item => `${item.guName}` === userInfo.guName,
           ); //나의  ㅇㅇ구 정보 불러오기
-          userInfo.guWeatherCode = myGuWeatherInfo[0].guCode; // 구 코드 추가
-          userInfo.guWaterCode = myGuWaterInfo[0].guCode; // 구 코드 추가
+          userInfo.guWeatherCode = myGuWeatherInfo[0] == undefined ?  '' : myGuWeatherInfo[0].guCode ; // 구 코드 추가
+          userInfo.guWaterCode = myGuWaterInfo[0] == undefined ?  '' : myGuWaterInfo[0].guCode  ; // 구 코드 추가
           this.setState({userInfo: userInfo});
 
       //날씨 API 추가 
       console.log(this.state.userInfo.guWaterCode + '  , ' + this.state.userInfo.guWeatherCode)
-      this.getWather(this.state.userInfo.guWaterCode) 
-      this.getWeather(this.state.userInfo.guWeatherCode)
-   
+      if(this.state.userInfo.guWaterCode != '' && this.state.userInfo.guWeatherCode != '') {
+        this.getWather(this.state.userInfo.guWaterCode) 
+        this.getWeather(this.state.userInfo.guWeatherCode)
+      }
+      console.log(this.state.userInfo)
       const ref = database().ref();
       ref.on("value", rs =>{
           var recycleArray = [];
-          var recycleList = rs.val() === null ? null : rs.val().users[userInfo.guName][userInfo.uid]
+          var recycleList = rs.val() === null ? null : rs.val().users[userInfo.guName][userInfo.userId]
           for(var i in recycleList){
             recycleArray.push(recycleList[i]);
           }
