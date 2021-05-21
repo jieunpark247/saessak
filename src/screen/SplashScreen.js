@@ -29,7 +29,11 @@ const SplashScreen = ({navigation}) => {
           size="large"
           style={styles.activityIndicator}
         />
-      </View>;*/
+      </View>;*/ AsyncStorage.getItem('session').then(value =>
+        value === null
+          ? navigation.navigate('LoginScreen')
+          : navigation.navigate('Board'),
+      );
     }, 5000);
     /*
     AsyncStorage.getItem('uid').then(value =>
@@ -38,13 +42,6 @@ const SplashScreen = ({navigation}) => {
         : navigation.navigate('Board'),Board
     );
     */
-
-    console.log('Signed in with Google! agsdsa');
-    AsyncStorage.getItem('session').then(value =>
-      value === null
-        ? navigation.navigate('LoginScreen')
-        : navigation.navigate('Board'),
-    );
 
     //navigation.navigate('LoginScreen');
   });

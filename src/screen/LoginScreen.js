@@ -80,12 +80,11 @@ async function onGoogleButtonPress(inputText) {
       console.log('2 : ' + UserInfo.email); //  출력 => 휴대폰 : 010-xxxx-xxxx
       console.log('3 : ' + UserInfo.guName); //  출력 => 휴대폰 : 010-xxxx-xxxx
     });
-    /*
-    console.log('erroe 2 ');
+
     AsyncStorage.setItem('session', 'login', () => {
       console.log('세션');
     });
-    */
+
     return idToken; // 토큰값 리턴
 
     // Sign-in the user with the credential
@@ -129,17 +128,17 @@ function LoginScreen({navigation}) {
   let userToken = null;
 
   useEffect(() => {
-    // userToken = AsyncStorage.getItem('uid');
+    userToken = AsyncStorage.getItem('uid');
     //console.log('변수' + userToken.uid);
-    //    AsyncStorage.getItem('users', (err, result) => {
-    //    const UserInfo = JSON.parse(result);
-    //  if (UserInfo) {
-    //  setInputText(UserInfo.guName);
-    // }
-    //});
-    //return () => {
-    //  console.log('컴포넌트가 화면에서 사라짐');
-    // };
+    AsyncStorage.getItem('users', (err, result) => {
+      const UserInfo = JSON.parse(result);
+      if (UserInfo) {
+        setInputText(UserInfo.guName);
+      }
+    });
+    return () => {
+      console.log('컴포넌트가 화면에서 사라짐');
+    };
   }, []);
 
   return (
