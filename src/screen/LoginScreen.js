@@ -57,9 +57,13 @@ async function onGoogleButtonPress(inputText) {
     // Create a Google credential with the token
 
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    auth().signInWithCredential(googleCredential);
+    await auth().signInWithCredential(googleCredential);
 
     const user = auth().currentUser; // 현재 유저 데이터 가져오기
+
+    console.log('erroe 1 ' + user.uid);
+    console.log('erroe 2 ' + user.email);
+    console.log('erroe 3 ' + inputText);
 
     AsyncStorage.setItem(
       'users',
@@ -70,8 +74,18 @@ async function onGoogleButtonPress(inputText) {
       }),
     ); // 유저스에 데이터 넣기 , 유저아이디는 구글에서 얻어고, 지역구값은 ui에서 얻어온다.
 
-    AsyncStorage.setItem('session', 'login'); // 유저스에 데이터 넣기 , 유저아이디는 구글에서 얻어고, 지역구값은 ui에서 얻어온다.
-
+    AsyncStorage.getItem('users', (err, result) => {
+      const UserInfo = JSON.parse(result);
+      console.log('1 : ' + UserInfo.userId); // 출력 => 닉네임 : User1
+      console.log('2 : ' + UserInfo.email); //  출력 => 휴대폰 : 010-xxxx-xxxx
+      console.log('3 : ' + UserInfo.guName); //  출력 => 휴대폰 : 010-xxxx-xxxx
+    });
+    /*
+    console.log('erroe 2 ');
+    AsyncStorage.setItem('session', 'login', () => {
+      console.log('세션');
+    });
+    */
     return idToken; // 토큰값 리턴
 
     // Sign-in the user with the credential
@@ -106,7 +120,7 @@ function LoginScreen({navigation}) {
   const isDarkMode = useColorScheme() === 'dark';
   const [inputText, setInputText] = useState('');
 
-  const [value, setValue] = useState('');
+  // const [value, setValue] = useState('');
   const values = [{age: 'option1', name: 'option2'}];
 
   const backgroundStyle = {
@@ -115,18 +129,17 @@ function LoginScreen({navigation}) {
   let userToken = null;
 
   useEffect(() => {
-    userToken = AsyncStorage.getItem('uid');
-    console.log('변수' + userToken.uid);
-
-    AsyncStorage.getItem('users', (err, result) => {
-      const UserInfo = JSON.parse(result);
-
-      setInputText(UserInfo.guName);
-    });
-
-    return () => {
-      console.log('컴포넌트가 화면에서 사라짐');
-    };
+    // userToken = AsyncStorage.getItem('uid');
+    //console.log('변수' + userToken.uid);
+    //    AsyncStorage.getItem('users', (err, result) => {
+    //    const UserInfo = JSON.parse(result);
+    //  if (UserInfo) {
+    //  setInputText(UserInfo.guName);
+    // }
+    //});
+    //return () => {
+    //  console.log('컴포넌트가 화면에서 사라짐');
+    // };
   }, []);
 
   return (
