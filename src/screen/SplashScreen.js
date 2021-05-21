@@ -14,8 +14,8 @@ const SplashScreen = ({navigation}) => {
   const [animating, setAnimating] = useState(true);
 
   useEffect(() => {
-    console.log('Signed in with Google! agsdsa');
     setTimeout(() => {
+      /*
       <View style={styles.container}>
         <View>
           <Image
@@ -29,7 +29,11 @@ const SplashScreen = ({navigation}) => {
           size="large"
           style={styles.activityIndicator}
         />
-      </View>;
+      </View>;*/ AsyncStorage.getItem('session').then(value =>
+        value === null
+          ? navigation.navigate('LoginScreen')
+          : navigation.navigate('Board'),
+      );
     }, 5000);
     /*
     AsyncStorage.getItem('uid').then(value =>
@@ -38,12 +42,6 @@ const SplashScreen = ({navigation}) => {
         : navigation.navigate('Board'),Board
     );
     */
-
-    AsyncStorage.getItem('session').then(value =>
-      value === null
-        ? navigation.navigate('LoginScreen')
-        : navigation.navigate('Board'),
-    );
 
     //navigation.navigate('LoginScreen');
   });

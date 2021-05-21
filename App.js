@@ -17,13 +17,12 @@ const StackApp = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <StackApp.Navigator initialRouteName="LoginScreen">
-        {/*
+      <StackApp.Navigator initialRouteName="SplashScreen">
         <StackApp.Screen
           name="SplashScreen"
           component={SplashScreen}
           options={{headerShown: false}}
-        />*/}
+        />
         <StackApp.Screen
           name="LoginScreen"
           component={LoginScreen}
