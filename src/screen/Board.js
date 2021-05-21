@@ -28,7 +28,11 @@ export class Board extends Component {
       waterData : [],
       userInfo : {},
       tabInfo : {},
-      rankArray: []
+      rankArray: [],
+      guCntData:{
+        "종로구":0,"중구":0,"용산구":0,"성동구":0,"광진구":0,"동대문구":0,"중랑구":0,"성북구":0,"강북구":0,"도봉구":0,"노원구":0,"은평구":0,"서대문구":0,"마포구":0,
+        "양천구":0,"강서구":0,"구로구":0,"금천구":0,"영등포구":0,"동작구":0,"관악구":0,"서초구":0,"강남구":0, "송파구":0, "강동구":0
+      },
     }
   }
   componentDidMount = () => {
@@ -59,8 +63,10 @@ export class Board extends Component {
           for(var i in recycleList){
             recycleArray.push(recycleList[i]);
           }
-
+          
+          //지역구별 재활용 건수 저장
           const guList = rs.val().users;
+          let guCntData = this.state.guCntData;
           let rankArray = [];
           for(let gu in guList){
             const userList = guList[gu];
@@ -68,14 +74,19 @@ export class Board extends Component {
             for (let user in userList) {
                 guCnt += Object.keys(userList[user]).length;
             }
-            const guData = {guName:gu, guCnt:guCnt};
+            guCntData[gu] = guCnt;
+          }
+
+          for (const [key, value] of Object.entries(guCntData)) {
+            const guData = {guName:key, guCnt:value};
             rankArray.push(guData);
           }
           
           rankArray.sort(function(a, b) {
             return b.guCnt - a.guCnt;
           });
-              
+          
+          //랭킹 계산
           let rank = 1;
           const len = rankArray.length;
           for(let i=0; i<len; i++){
@@ -310,7 +321,7 @@ export class Board extends Component {
   };
 
     moveGuPage = () => {
-      this.props.navigation.navigate('Ranking',{data:this.state.rankArray})
+      this.props.navigation.navigate('Ranking',{data:{rank:this.state.rankArray,myGu:this.state.userInfo.guName}})
     }
 
   render() {

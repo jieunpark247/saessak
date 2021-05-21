@@ -2,10 +2,12 @@
  import { StyleSheet,View, Text} from 'react-native';
 
   const RankItem = ({
-    item
+    item,myGu
   }) => {
+      let border= false;
+      if(item.guName == myGu) border = true;
       return (
-        <View style={styles.rect}>
+        <View style={[styles.rect,border&&styles.rectBorder]}>
             <View style={styles.rankBox}>
               <Text style={styles.rankText}>{item.rank}위</Text>
             </View>
@@ -25,10 +27,14 @@
       marginVertical: 13,
       marginHorizontal: 7
     },
+    rectBorder:{
+      borderColor: "#1D6038", 
+      borderWidth: 3
+    },
     rankBox: {
       width: 60,
       height: 60,
-      margin: 5,
+      margin: 3,
       backgroundColor: "#469840",
       borderRadius: 20
     },

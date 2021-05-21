@@ -15,10 +15,9 @@
     $(function(){
         initMap();
     });
-    rank = {"강남구": 1, "강동구": 3, "도봉구": 2, "서초구": 4, "송파구": 4};
+
     document.addEventListener("message", function(data) {
         rank =  data.data;
-        alert(JSON.stringify(rank));
 	})
 
     function coloring(d){
