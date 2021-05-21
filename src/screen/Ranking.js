@@ -8,35 +8,40 @@
         super();
  
         this.state={
-            guData:[
-                "종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"
-            ],
+            guData:{
+                "종로구":0,"중구":0,"용산구":0,"성동구":0,"광진구":0,"동대문구":0,"중랑구":0,"성북구":0,"강북구":0,"도봉구":0,"노원구":0,"은평구":0,"서대문구":0,"마포구":0,
+                "양천구":0,"강서구":0,"구로구":0,"금천구":0,"영등포구":0,"동작구":0,"관악구":0,"서초구":0,"강남구":0, "송파구":0, "강동구":0
+            },
             data: []
         };
     }
 
+    componentDidMount  = () =>{
+        const rankData = this.props.route.params.data;
+        const rank= {}//this.state.guData;
+        rankData.map(item=>{
+            rank[item.guName] = item.rank;
+        })
+        this.webview.postMessage(rank);
+        console.log(rank);
+    }
+
     guClick = (gu) =>{
         console.log(gu+'!!!!!!!');
+        alert(gu);
     };
 
      render() {
-        const web = `
-        <script>
-          function send(){
-            window.ReactNativeWebview('hello react-native!!');
-          }
-        </script>
-        <button onclick="send()">Send</button>
-        `;
          return (
              <View style={styles.container}>
                 <WebView
                     style={styles.rankMapArea}
-                    //source={{html: web}}
-                    source={{uri: 'http://121.142.30.220:8080'}}
-                    onMessage={(event)=> console.log(event.nativeEvent.data)}
-                    scalesPageToFit={false}
-                    scrollEnabled={false}
+                    //source={{uri: 'http://121.142.30.220:8080'}}
+                    source={{uri: 'https://sassak-29409.web.app/'}}
+                    onMessage={event => {
+                        this.guClick(event.nativeEvent.data);
+                    }}
+                    ref={(ref) => (this.webview = ref)}
                 />
                 <View style={styles.rankListArea}>
                     <Text style={styles.chartTitle}>지역구 순위</Text>
