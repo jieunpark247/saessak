@@ -43,6 +43,7 @@ import AsyncStorage from '@react-native-community/async-storage'
         //DB에 쓰기 
         var date = new Date()
         const data = {
+          userId: this.state.userInfo.userId,
           imageUri:imageUri,
           barcodeValue:barcodeValue,
           today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(),
@@ -57,8 +58,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 
     };
     writeDB = (data) => {
-      console.log("this is writeDB function")
-      const userId = '7a4e706747716f7237394373666a43'
+      console.log("this is writeDB function"  + data.userId)
+      const userId = data.userId
       console.log(data.barcodeValue);
       database().ref( `users/${data.guName}/${userId}/${uuid.v4()}`).set({
         profile_picture : data.imageUri,

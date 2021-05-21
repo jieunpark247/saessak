@@ -18,7 +18,7 @@ import guInfo from '../../guInfo.json';
 const API_KEY_WATER = '7a4e706747716f7237394373666a43';
 const API_KEY_WEATHER = '5272566657716f723734536d526c49';
 const parseString = require('react-native-xml2js').parseString;
-
+const API_URL = 'http://openapi.seoul.go.kr:8088'
 export class Board extends Component {
   constructor(props) {
     super(props);
@@ -36,81 +36,84 @@ export class Board extends Component {
     }
   }
   componentDidMount = () => {
-    console.log('======== componentDidMount =========');
-    //날씨 수질 공공 api
-        console.log('유저정보 저장 완료');
-        AsyncStorage.getItem('users', (err, result) => {
-          var userInfo = JSON.parse(result);
-          console.log("테스트 데이터로 실행중 ... 지워야합니다.")
-          userInfo.userId ='7a4e706747716f7237394373666a43'
-          userInfo.guName = '강남구' // 삭제하기 >> 테스트 데이터 
+      console.log('======== componentDidMount =========');
+      AsyncStorage.getItem('users', (err, result) => {
+      var userInfo = JSON.parse(result);
+      console.log("==========userInfo==========")
+      console.log(userInfo)
 
-          const myGuWeatherInfo = guInfo.guCtgrWeather.filter(
-            item => `${item.guName}` === userInfo.guName,
-          ); //나의  ㅇㅇ구 정보 불러오기
-          const myGuWaterInfo = guInfo.guCtgrWater.filter(
-            item => `${item.guName}` === userInfo.guName,
-          ); //나의  ㅇㅇ구 정보 불러오기
-          userInfo.guWeatherCode = myGuWeatherInfo[0] == undefined ?  '' : myGuWeatherInfo[0].guCode ; // 구 코드 추가
-          userInfo.guWaterCode = myGuWaterInfo[0] == undefined ?  '' : myGuWaterInfo[0].guCode  ; // 구 코드 추가
-          this.setState({userInfo: userInfo});
+      //나의  ㅇㅇ구 정보 불러오기
+      const myGuWeatherInfo = guInfo.guCtgrWeather.filter(
+        item => `${item.guName}` === userInfo.guName,
+      ); 
+      const myGuWaterInfo = guInfo.guCtgrWater.filter(
+        item => `${item.guName}` === userInfo.guName,
+      ); 
+      // 구 코드 추가
+      userInfo.guWeatherCode = myGuWeatherInfo[0] == undefined ?  '' : myGuWeatherInfo[0].guCode ; 
+      userInfo.guWaterCode = myGuWaterInfo[0] == undefined ?  '' : myGuWaterInfo[0].guCode  ;
+
+      this.setState({userInfo: userInfo});
 
       //날씨 API 추가 
-      console.log(this.state.userInfo.guWaterCode + '  , ' + this.state.userInfo.guWeatherCode)
-      if(this.state.userInfo.guWaterCode != '' && this.state.userInfo.guWeatherCode != '') {
+      console.log("guCode : " + this.state.userInfo.guWaterCode + '  , ' + this.state.userInfo.guWeatherCode)
+      if(this.state.userInfo.guWaterCode != '' || this.state.userInfo.guWeatherCode != '') {
         this.getWather(this.state.userInfo.guWaterCode) 
         this.getWeather(this.state.userInfo.guWeatherCode)
       }
-      console.log(this.state.userInfo)
-      const ref = database().ref();
-      ref.on("value", rs =>{
-          var recycleArray = [];
-          var recycleList = rs.val() === null ? null : rs.val().users[userInfo.guName][userInfo.userId]
-          for(var i in recycleList){
-            recycleArray.push(recycleList[i]);
-          }
-          
-          //지역구별 재활용 건수 저장
-          const guList = rs.val().users;
-          let guCntData = this.state.guCntData;
-          let rankArray = [];
-          for(let gu in guList){
-            const userList = guList[gu];
-            let guCnt = 0;
-            for (let user in userList) {
-                guCnt += Object.keys(userList[user]).length;
-            }
-            guCntData[gu] = guCnt;
-          }
-
-          for (const [key, value] of Object.entries(guCntData)) {
-            const guData = {guName:key, guCnt:value};
-            rankArray.push(guData);
-          }
-          
-          rankArray.sort(function(a, b) {
-            return b.guCnt - a.guCnt;
-          });
-          
-          //랭킹 계산
-          let rank = 1;
-          const len = rankArray.length;
-          for(let i=0; i<len; i++){
-            rankArray[i].rank = rank;
-            if(i==len-1) break;
-            if(rankArray[i].guCnt>rankArray[i+1].guCnt) rank++;
-          }
-          console.log('rankArray');
-          console.log(rankArray);
-
-          this.setState({data : recycleArray, rankArray:rankArray});
-          });
-        });
+      //데이터 가져오기 
+      this.getDatbase(userInfo)
+    });
   };
 
+  getDatbase = (userInfo) => {
+    const ref = database().ref();
+    ref.on("value", rs =>{
+        var recycleArray = [];
+        if(rs.val() === null || rs.val() == 0 ) return;
+        var recycleList = rs.val().users[userInfo.guName][userInfo.userId]
+        for(var i in recycleList){
+          recycleArray.push(recycleList[i]);
+        }
+        
+        //지역구별 재활용 건수 저장
+        const guList = rs.val().users;
+        let guCntData = this.state.guCntData;
+        let rankArray = [];
+        for(let gu in guList){
+          const userList = guList[gu];
+          let guCnt = 0;
+          for (let user in userList) {
+              guCnt += Object.keys(userList[user]).length;
+          }
+          guCntData[gu] = guCnt;
+        }
+
+        for (const [key, value] of Object.entries(guCntData)) {
+          const guData = {guName:key, guCnt:value};
+          rankArray.push(guData);
+        }
+        
+        rankArray.sort(function(a, b) {
+          return b.guCnt - a.guCnt;
+        });
+        
+        //랭킹 계산
+        let rank = 1;
+        const len = rankArray.length;
+        for(let i=0; i<len; i++){
+          rankArray[i].rank = rank;
+          if(i==len-1) break;
+          if(rankArray[i].guCnt>rankArray[i+1].guCnt) rank++;
+        }
+        console.log('rankArray');
+        console.log(rankArray);
+
+        this.setState({data : recycleArray, rankArray:rankArray});
+      });
+  }
   getWeather = async guCode => {
-    var url = `http://openapi.seoul.go.kr:8088/${API_KEY_WEATHER}/xml/ListAirQualityByDistrictService/1/5/${guCode}/`;
-    console.log(url);
+    var url = `${API_URL}/${API_KEY_WEATHER}/xml/ListAirQualityByDistrictService/1/5/${guCode}/`;
     await fetch(url)
       .then(response => response.text())
       .then(data => {
@@ -129,8 +132,7 @@ export class Board extends Component {
       });
   };
   getWather = async guCode => {
-    var url = `http://openapi.seoul.go.kr:8088/${API_KEY_WATER}/xml/AreaQltwtrSttus/1/5/${guCode}/`;
-    console.log(url);
+    var url = `${API_URL}/${API_KEY_WATER}/xml/AreaQltwtrSttus/1/5/${guCode}/`;
     await fetch(url)
       .then(response => response.text())
       .then(data => {
@@ -329,6 +331,15 @@ export class Board extends Component {
     moveGuPage = () => {
       this.props.navigation.navigate('Ranking',{data:{rank:this.state.rankArray,myGu:this.state.userInfo.guName}})
     }
+    setNoListData = () =>{
+      if(this.state.data.length > 0) return
+      return(
+        <View style={styles.noData} >
+            <Text style = {styles.noDataTxt}> 데이터를 입력해주세요(시작하기 클릭) </Text>
+          </View>
+      );
+    }
+    
 
   render() {
     const rankArray = this.state.rankArray;
@@ -463,8 +474,9 @@ export class Board extends Component {
               {this.ChangeEnvTab()}
             </View>
           </View>
-
-          {this.state.data.map((value, index) => {
+          {this.setNoListData()}
+          {
+          this.state.data.map((value, index) => {
             return (
               <View style={styles.thirdBoard} key={index}>
                 <View style={styles.listItem}>
@@ -498,8 +510,10 @@ export class Board extends Component {
                 </View>
               </View>
             );
-          })}
+          })
+        }
         </ScrollView>
+        
       </SafeAreaView>
     );
   }
@@ -747,7 +761,7 @@ const styles = StyleSheet.create({
     color: 'rgba(158,158,158,1)',
     textAlign: 'center',
     fontSize: 20,
-    marginTop: 3,
+    marginTop: 7,
     marginLeft: 5,
   },
   envTitleRes: {
@@ -788,6 +802,21 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 12,
     marginLeft: 21,
+  },
+  noData:{
+    width: 365,
+    height: 290,
+    marginTop: 12,
+    marginLeft: 21,
+    borderRadius: 15,
+    backgroundColor: 'rgba(230,230,230,0.6)',
+  },
+  noDataTxt :{
+    marginTop: 120,
+    fontFamily: 'roboto-regular',
+    color: 'rgba(158,158,158,1)',
+    textAlign: 'center',
+    fontSize : 20
   },
   barcodeText: {
     fontFamily: 'roboto-regular',
