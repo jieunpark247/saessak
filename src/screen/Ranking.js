@@ -1,7 +1,8 @@
  import React, { Component } from 'react';
- import { StyleSheet, Alert, View, Text, FlatList, Toast } from 'react-native';
+ import { StyleSheet, View, Text, FlatList,Modal, TouchableOpacity, Image } from 'react-native';
  import { WebView } from 'react-native-webview';
  import RankItem from '../components/RankItem';
+ import RankPopup from '../components/RankPopup';
  
  export class Ranking extends Component {
     constructor(){
@@ -9,7 +10,9 @@
  
         this.state={
             data: [],
-            myGu: ''
+            myGu: '',
+            modalGu: '',
+            modalVisible: false
         };
     }
 
@@ -24,12 +27,31 @@
     }
 
     guClick = (gu) =>{
-        alert(gu);
+        console.log(gu);
+        const rankData = this.props.route.params.data.rank;
+        let guData= {}
+        rankData.map(item=>{
+            if(item.guName == gu){
+                guData = item;
+                return;
+            }
+        });
+        this.setState({
+            modalVisible: true,
+            modalGu: guData,
+        })
+    };
+
+    setModalVisible = () => {
+        this.setState({
+            modalVisible: false
+        })
     };
 
      render() {
          return (
              <View style={styles.container}>
+                <RankPopup visible={this.state.modalVisible} setModalVisible={this.setModalVisible} gu={this.state.modalGu}/>
                 <WebView
                     style={styles.rankMapArea}
                     source={{uri: 'https://sassak-29409.web.app/'}}
