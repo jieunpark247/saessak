@@ -29,7 +29,8 @@ const SplashScreen = ({navigation}) => {
           size="large"
           style={styles.activityIndicator}
         />
-      </View>;*/ AsyncStorage.getItem('session').then(value =>
+      </View>;*/
+      AsyncStorage.getItem('session').then(value =>
         value === null
           ? navigation.navigate('LoginScreen')
           : navigation.navigate('Board'),
@@ -42,7 +43,13 @@ const SplashScreen = ({navigation}) => {
         : navigation.navigate('Board'),Board
     );
     */
-
+    setTimeout(() => {
+      AsyncStorage.getItem('session').then(value =>
+        value === null
+          ? navigation.navigate('LoginScreen')
+          : navigation.navigate('Board'),
+      );
+    }, 3000);
     //navigation.navigate('LoginScreen');
   });
 
@@ -50,7 +57,7 @@ const SplashScreen = ({navigation}) => {
     <View style={styles.container}>
       <View>
         <Image
-          source={require('../assets/images/splash1.png')}
+          source={require('../assets/images/splash2.png')}
           style={{
             resizeMode: 'contain',
             //margin: 30,

@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   PermissionsAndroid,
   Platform,
+  Animated,
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -28,26 +29,37 @@ import AsyncStorage from '@react-native-community/async-storage';
 //import {Picker} from '@react-native-community/picker';
 
 import {Picker} from '@react-native-picker/picker';
-//import {Dropdown} from 'react-native-material-dropdown-v2';
-/*
-class Example extends Component {
+import {Dropdown} from 'react-native-material-dropdown-v2';
+{
+  /*}
+class DistrictSelect extends Component {
   render() {
-    let data = [
+    let distData = [
       {
-        value: 'Banana',
+        value: '강남구',
       },
       {
-        value: 'Mango',
+        value: '서초구',
       },
       {
-        value: 'Pear',
+        value: '영등포구',
       },
     ];
 
-    return <Dropdown label="Favorite Fruit" data={data} />;
+    return (
+      <Dropdown
+        style={styles.dropBox}
+        placeholder="지역구를 선택하세요."
+        data={distData}
+        // onChangeText={() => console.log('데이터 ' + distData.value)}
+        onPress={() => setInputText('영등포구')}
+        // onChangeText={() => setInputText('강남구')}
+      />
+    );
   }
-}*/
-
+}
+*/
+}
 async function onGoogleButtonPress(inputText) {
   // Get the users ID token
   try {
@@ -118,7 +130,33 @@ GoogleSignin.configure({
 function LoginScreen({navigation}) {
   const isDarkMode = useColorScheme() === 'dark';
   const [inputText, setInputText] = useState('');
-
+  let distData = [
+    {value: '강남구'},
+    {value: '강동구'},
+    {value: '강북구'},
+    {value: '강서구'},
+    {value: '관악구'},
+    {value: '광진구'},
+    {value: '구로구'},
+    {value: '금천구'},
+    {value: '노원구'},
+    {value: '도봉구'},
+    {value: '동대문구'},
+    {value: '동작구'},
+    {value: '마포구'},
+    {value: '서대문구'},
+    {value: '서초구'},
+    {value: '성동구'},
+    {value: '성북구'},
+    {value: '송파구'},
+    {value: '양천구'},
+    {value: '영등포구'},
+    {value: '용산구'},
+    {value: '은평구'},
+    {value: '종로구'},
+    {value: '중구'},
+    {value: '중랑구'},
+  ];
   // const [value, setValue] = useState('');
   const values = [{age: 'option1', name: 'option2'}];
 
@@ -150,7 +188,7 @@ function LoginScreen({navigation}) {
         <View style={styles.row_01}>
           <View style={styles.logoSettingRow}>
             <Image
-              source={require('../assets/images/login_logo_small.png')}
+              source={require('../assets/images/saessak-logo-03.png')}
               resizeMode="contain"
             />
           </View>
@@ -158,27 +196,49 @@ function LoginScreen({navigation}) {
             <Text style={styles.logoStyle}>새싹</Text>
           </View>
         </View>
-        <Text style={styles.textStyle}>지역구를 입력하세요.</Text>
+        {/*<Text style={styles.textStyle}>지역구를 입력하세요.</Text>*/}
       </ImageBackground>
+
+      {/* 
       <TextInput
         style={styles.inputBox}
         placeholder={inputText}
         value={inputText}
         onChangeText={value => setInputText(value)}
-      />
-      {/*<Example></Example>*/}
+      />*/}
+      <Animated.View style={styles.dropBoxView}>
+        <Dropdown
+          style={styles.dropBox}
+          placeholder="지역구를 선택하세요."
+          data={distData}
+          //onChangeText={() => console.log('데이터 ' + distData.value)}
+          //onChangeText={value => setInputText(value)}
+          onChangeText={value => setInputText(value)}
+          //onPress={() => setInputText('영등포구')}
+          //onChangeItem={item => setInputText('영등포구')}
+          //  handler={(selection, row) => setInputText(distData[selection][row])}
+        />
+      </Animated.View>
       <View style={styles.root}>
         <TouchableOpacity
+          disabled={inputText ? false : true}
           onPress={() =>
             onGoogleButtonPress(inputText).then(() =>
               navigation.navigate('Board'),
             )
           }
           style={styles.button_01}>
-          <Image
-            source={require('../assets/images/google.login.png')}
-            style={styles.loginImg}
-          />
+          {inputText ? (
+            <Image
+              source={require('../assets/images/google.login.png')}
+              style={styles.loginImg}
+            />
+          ) : (
+            <Image
+              source={require('../assets/images/google.login_gray.png')}
+              style={styles.loginImg}
+            />
+          )}
         </TouchableOpacity>
 
         <ImageBackground
@@ -204,7 +264,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   row_01: {
-    top: 300,
+    top: 350,
   },
   logoStyle: {
     top: 20,
@@ -215,9 +275,15 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   logoSettingRow: {
-    top: -80,
+    top: -110, //-110
+    //left: 20, // 20
     width: '10%',
     height: '10%',
+    alignItems: 'center',
+  },
+  logoSettingRow2: {
+    top: 40,
+    left: 60,
     alignItems: 'center',
   },
   textStyle: {
@@ -239,6 +305,36 @@ const styles = StyleSheet.create({
     borderColor: 'green',
     height: 40,
     width: 210,
+  },
+  dropBoxView: {
+    top: 225,
+    left: 58,
+    alignItems: 'center',
+    textAlign: 'center',
+    // borderWidth: 2,
+    //backgroundColor: 'blue',
+    //color: 'black',
+    //borderColor: 'green',
+    height: 50,
+    width: 300,
+
+    //height: 5,
+    //width: 300,
+  },
+  dropBox: {
+    //top: -100,
+    //left: 58,
+    alignItems: 'center',
+    textAlign: 'center',
+    borderWidth: 1,
+    backgroundColor: 'white',
+    color: 'black',
+    borderColor: 'green',
+    height: 50,
+    width: 220,
+
+    //height: 5,
+    //width: 300,
   },
   root_03: {
     flex: 1,
