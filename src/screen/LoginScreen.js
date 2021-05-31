@@ -27,8 +27,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 //import {Dropdown} from 'react-native-material-dropdown';
 //import DropDownPicker from 'react-native-dropdown-picker';
 //import {Picker} from '@react-native-community/picker';
-
-import {Picker} from '@react-native-picker/picker';
 import {Dropdown} from 'react-native-material-dropdown-v2';
 {
   /*}
