@@ -27,7 +27,6 @@
     }
 
     guClick = (gu) =>{
-        console.log(gu);
         const rankData = this.props.route.params.data.rank;
         let guData= {}
         rankData.map(item=>{
