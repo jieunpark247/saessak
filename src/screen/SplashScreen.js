@@ -2,10 +2,10 @@
 import React, {useState, useEffect} from 'react';
 import {ActivityIndicator, View, StyleSheet, Image} from 'react-native';
 
-//import {
-// widthPercentageToDP as wp,
-// heightPercentageToDP as hp,
-//} from 'react-native-responsive-screen';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -57,19 +57,15 @@ const SplashScreen = ({navigation}) => {
     <View style={styles.container}>
       <View>
         <Image
-          source={require('../assets/images/splash2.png')}
+          source={require('../assets/images/splash5.png')}
           style={{
-            resizeMode: 'contain',
+            resizeMode: 'cover',
+            width: wp(100),
+            height: hp(100),
             //margin: 30,
           }}
         />
       </View>
-      <ActivityIndicator
-        animating={animating}
-        color="#6990F7"
-        size="large"
-        style={styles.activityIndicator}
-      />
     </View>
   );
 };
@@ -79,13 +75,8 @@ export default SplashScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-  },
-  activityIndicator: {
-    top: 200,
-    alignItems: 'center',
-    height: 80,
+    //alignItems: 'center',
+    //justifyContent: 'center',
+    //backgroundColor: 'white',
   },
 });

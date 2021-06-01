@@ -23,41 +23,12 @@ import React, {useEffect, useState, Component} from 'react';
 //import {Button} from 'react-native';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-community/async-storage';
-//import {createStackNavigator} from '@react-navigation/stack';
-//import {Dropdown} from 'react-native-material-dropdown';
-//import DropDownPicker from 'react-native-dropdown-picker';
-//import {Picker} from '@react-native-community/picker';
 import {Dropdown} from 'react-native-material-dropdown-v2';
-{
-  /*}
-class DistrictSelect extends Component {
-  render() {
-    let distData = [
-      {
-        value: '강남구',
-      },
-      {
-        value: '서초구',
-      },
-      {
-        value: '영등포구',
-      },
-    ];
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
-    return (
-      <Dropdown
-        style={styles.dropBox}
-        placeholder="지역구를 선택하세요."
-        data={distData}
-        // onChangeText={() => console.log('데이터 ' + distData.value)}
-        onPress={() => setInputText('영등포구')}
-        // onChangeText={() => setInputText('강남구')}
-      />
-    );
-  }
-}
-*/
-}
 async function onGoogleButtonPress(inputText) {
   // Get the users ID token
   try {
@@ -182,42 +153,26 @@ function LoginScreen({navigation}) {
       <ImageBackground
         source={require('../assets/images/saessak_head.png')}
         resizeMode="contain"
-        style={styles.backImage}>
-        <View style={styles.row_01}>
-          <View style={styles.logoSettingRow}>
-            <Image
-              source={require('../assets/images/saessak-logo-03.png')}
-              resizeMode="contain"
-            />
-          </View>
-          <View>
-            <Text style={styles.logoStyle}>새싹</Text>
-          </View>
+        style={styles.topBackImage}></ImageBackground>
+      <View style={styles.logoImage}>
+        <Image
+          source={require('../assets/images/saessak-logo-03.png')}
+          resizeMode="contain"
+        />
+        <View>
+          <Text style={styles.logoName}>새싹</Text>
         </View>
-        {/*<Text style={styles.textStyle}>지역구를 입력하세요.</Text>*/}
-      </ImageBackground>
+      </View>
 
-      {/* 
-      <TextInput
-        style={styles.inputBox}
-        placeholder={inputText}
-        value={inputText}
-        onChangeText={value => setInputText(value)}
-      />*/}
       <Animated.View style={styles.dropBoxView}>
         <Dropdown
           style={styles.dropBox}
-          placeholder="지역구를 선택하세요."
+          placeholder="지역구를 선택하세요"
           data={distData}
-          //onChangeText={() => console.log('데이터 ' + distData.value)}
-          //onChangeText={value => setInputText(value)}
           onChangeText={value => setInputText(value)}
-          //onPress={() => setInputText('영등포구')}
-          //onChangeItem={item => setInputText('영등포구')}
-          //  handler={(selection, row) => setInputText(distData[selection][row])}
         />
       </Animated.View>
-      <View style={styles.root}>
+      <View style={styles.googleLoginRoot}>
         <TouchableOpacity
           disabled={inputText ? false : true}
           onPress={() =>
@@ -225,24 +180,24 @@ function LoginScreen({navigation}) {
               navigation.navigate('Board'),
             )
           }
-          style={styles.button_01}>
+          style={styles.googleLoginImgView}>
           {inputText ? (
             <Image
               source={require('../assets/images/google.login.png')}
-              style={styles.loginImg}
+              style={styles.googleLoginImg}
             />
           ) : (
             <Image
               source={require('../assets/images/google.login_gray.png')}
-              style={styles.loginImg}
+              style={styles.googleLoginImg}
             />
           )}
         </TouchableOpacity>
-
-        <ImageBackground
-          source={require('../assets/images/saessak_bottom.png')}
-          style={styles.imageDown}></ImageBackground>
       </View>
+
+      <ImageBackground
+        source={require('../assets/images/saessak_bottom.png')}
+        style={styles.bottomBackImage}></ImageBackground>
     </SafeAreaView>
   );
 }
@@ -250,71 +205,55 @@ function LoginScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  root: {
-    top: 180,
-    flex: 1,
-  },
-  backImage: {
-    top: -52,
-    width: '100%',
-    height: 200,
     alignItems: 'center',
   },
-  row_01: {
-    top: 350,
+
+  topBackImage: {
+    top: wp(-15),
+    width: wp('100'),
+    height: hp('30'),
+    alignItems: 'center',
   },
-  logoStyle: {
-    top: 20,
+  bottomBackImage: {
+    top: wp(10),
+    alignItems: 'center',
+    //bottom: -250,
+    width: wp('100'),
+    height: hp('30'),
+  },
+  logoRoot: {
+    //top: wp(0),
+    alignItems: 'center',
+  },
+  logoImage: {
+    top: wp(-10), //-110
+    //left: wp(-1),
+    //left: 20, // 20
+    width: wp('100%'),
+    height: hp('10%'),
+    alignItems: 'center',
+  },
+  logoName: {
+    top: wp(2), //-110
+    //\\\left: wp(-1),
     textAlign: 'center',
     fontFamily: 'roboto-700',
     color: 'rgba(27,100,50,1)',
     fontWeight: 'bold',
-    fontSize: 30,
-  },
-  logoSettingRow: {
-    top: -110, //-110
-    //left: 20, // 20
-    width: '10%',
-    height: '10%',
-    alignItems: 'center',
-  },
-  logoSettingRow2: {
-    top: 40,
-    left: 60,
-    alignItems: 'center',
-  },
-  textStyle: {
-    top: 365,
-    textAlign: 'center',
-    fontFamily: 'roboto-700',
-    color: 'rgba(60,130,70,1)',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-  inputBox: {
-    top: 225,
-    left: 104,
-    alignItems: 'center',
-    textAlign: 'center',
-    borderWidth: 2,
-    backgroundColor: 'white',
-    color: 'black',
-    borderColor: 'green',
-    height: 40,
-    width: 210,
+    fontSize: wp(7),
   },
   dropBoxView: {
-    top: 225,
-    left: 58,
+    margin: hp(10),
+    // top: hp(20),
+    //left: hp(26),
     alignItems: 'center',
     textAlign: 'center',
     // borderWidth: 2,
     //backgroundColor: 'blue',
     //color: 'black',
     //borderColor: 'green',
-    height: 50,
-    width: 300,
+    height: hp(5),
+    width: wp(45),
 
     //height: 5,
     //width: 300,
@@ -328,40 +267,29 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     color: 'black',
     borderColor: 'green',
-    height: 50,
-    width: 220,
+    height: hp(5),
+    width: wp(45),
 
     //height: 5,
     //width: 300,
   },
-  root_03: {
+  googleLoginRoot: {
+    top: hp(-5),
     flex: 1,
+    alignItems: 'center',
   },
-  button_01: {
-    marginTop: 70,
-    width: '100%',
-    height: 90,
+  googleLoginImgView: {
+    alignItems: 'center',
+    //left: hp(18),
+    width: wp(51),
+    height: hp(10),
     borderRadius: 40,
     position: 'absolute',
-    alignItems: 'center',
   },
-  loginImg: {
-    width: 220,
-    height: 110,
-  },
-  button_02: {
-    marginTop: 130,
-    width: '100%',
-    height: 90,
-    borderRadius: 40,
-    position: 'absolute',
-    alignItems: 'center',
-  },
-  imageDown: {
-    alignItems: 'center',
-    bottom: -250,
-    width: '100%',
-    height: 200,
+  googleLoginImg: {
+    //  alignItems: 'center',
+    width: wp(51),
+    height: hp(10),
   },
 });
 
