@@ -644,7 +644,7 @@ const styles = StyleSheet.create({
     top: hp(36),
     left: wp(40),
     width: wp(40),
-    height: hp(5),
+    height: hp(6),
     alignItems: 'center',
     backgroundColor: '#7cc594',
     padding: 10,
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   myGu: {
-    top: hp(3),
+    top: hp(2.5),
     fontFamily: 'roboto-700',
     color: 'rgba(37,119,62,1)',
     height: hp(3),
