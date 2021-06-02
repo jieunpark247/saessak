@@ -5,7 +5,10 @@ import storage from '@react-native-firebase/storage';
 import database from '@react-native-firebase/database';
 import uuid from 'react-native-uuid'
 import AsyncStorage from '@react-native-community/async-storage'
-
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
  //default는 App.js에서만 사용해야 하는 듯 
  export class CameraRoll extends Component {
     constructor(props) {
@@ -85,7 +88,7 @@ import AsyncStorage from '@react-native-community/async-storage'
         ref={ref => {
           this.camera = ref;
         }}
-        style={{width: 450, height: 700}} // 카메라 화면 크기
+        style={{width: wp(100), height: hp(85)}} // 카메라 화면 크기
         type={RNCamera.Constants.Type.back}
         captureAudio={false}
       />
@@ -101,16 +104,16 @@ import AsyncStorage from '@react-native-community/async-storage'
 
  const styles = StyleSheet.create({
   takePic: {
-      top: 710,
-      left: 155,
+      top: hp(86.5),
+      left: wp(40),
       position: "absolute",
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
   },
   takePicture:{
-    width : 100,
-    height : 100,
+    width : wp(25),
+    height : wp(25),
     borderRadius : 50,
     borderWidth: 10,
     borderColor: "lightgrey",

@@ -775,8 +775,9 @@ const styles = StyleSheet.create({
     marginRight: wp(2),
   },
   dust_res_01: {
+    backgroundColor :'red',
     width: wp(10),
-    height: hp(5),
+    height: wp(10),
     textAlign: 'center',
     marginLeft: wp(11.5),
   },
