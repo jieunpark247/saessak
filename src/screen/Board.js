@@ -644,7 +644,7 @@ const styles = StyleSheet.create({
     top: hp(36),
     left: wp(40),
     width: wp(40),
-    height: hp(6),
+    height: hp(5),
     alignItems: 'center',
     backgroundColor: '#7cc594',
     padding: 10,
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   myGu: {
-    top: hp(2),
+    top: hp(3),
     fontFamily: 'roboto-700',
     color: 'rgba(37,119,62,1)',
     height: hp(3),
@@ -667,7 +667,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   guGrade: {
-    top: hp(1),
+    top: hp(2),
     fontFamily: 'roboto-700',
     color: '#121212',
     height: hp(3),
@@ -775,9 +775,8 @@ const styles = StyleSheet.create({
     marginRight: wp(2),
   },
   dust_res_01: {
-    backgroundColor :'red',
-    width: wp(10),
-    height: wp(10),
+    width: wp(9),
+    height: wp(9),
     textAlign: 'center',
     marginLeft: wp(11.5),
   },
