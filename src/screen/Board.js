@@ -15,6 +15,11 @@ import {
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-community/async-storage';
 import guInfo from '../../guInfo.json';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+
 const API_KEY_WATER = '7a4e706747716f7237394373666a43';
 const API_KEY_WEATHER = '5272566657716f723734536d526c49';
 const parseString = require('react-native-xml2js').parseString;
@@ -72,6 +77,8 @@ export class Board extends Component {
         var recycleArray = [];
         if(rs.val() === null || rs.val().users[userInfo.guName] ==null ) return 
         var recycleList = rs.val().users[userInfo.guName][userInfo.userId]
+        console.log("========================================>>")
+        console.log(recycleList)
         for(var i in recycleList){
           recycleArray.push(recycleList[i]);
         }
@@ -204,63 +211,83 @@ export class Board extends Component {
       {text: '네', onPress: () => this.scanBarcode()},
     ]);
   weatherLevel = (num, limit) => {
-    if (num <= limit.good) {
-      return '좋음';
+    if (num <= limit.good) { require('../assets/images/saessak-img-01.png')
+      return require('../assets/images/dust_good.png');
     } else if (num <= limit.normal) {
-      return '보통';
+      return require('../assets/images/dust_normal.png');
     } else if (num <= limit.bad) {
-      return '나쁨';
+      return require('../assets/images/dust_bad.png');
     } else {
-      return '매우나쁨';
+      return require('../assets/images/dust_sobad.png');
     }
   };
+  changeEnvTabDetail = (tabName,info) =>{
+    if(tabName === '수질'){
+      return(
+        <View style={styles.envTitleRes}>
+          <Text
+              style={styles.res_02_water}>
+              {info.tabTitleRes.res_01}
+            </Text>
+            <Text
+              style={styles.res_02_water}>
+              {info.tabTitleRes.res_02}
+            </Text>
+            <Text
+              style={styles.res_02_water}>
+              {info.tabTitleRes.res_03}
+            </Text>
+        </View>
+      );
+
+    }else if(tabName === '대기정보'){
+      console.log(">>>>>>>대기정보")
+      return(
+        <View style={styles.envTitleRes}>
+        <Image
+        source={info.tabTitleRes.res_01}
+        style={styles.dust_res_01}></Image>
+        <Image
+         source={info.tabTitleRes.res_02}
+        style={styles.dust_res_01}></Image>
+        <Image
+          source={info.tabTitleRes.res_02}
+        style={styles.dust_res_01}></Image>
+        </View>
+      );
+    }else if(info.tabName === '재활용'){
+      return(
+        <View style={styles.envTitleRes}>
+          <Text
+            style={styles.res_01_recycle}>
+            {info.tabTitleRes.res_02}
+          </Text>
+        </View>
+      );
+    }
+  
+  }
   ChangeEnvTab = () => {
+    console.log("changeEnvTab")
     //수온(TE) 탁도(TB) PH3(PH) 32.5%
     const info = this.state.tabInfo;
     if (!info.tabTitle) return; //state 값이 null이면 리턴
-
+    console.log(info.tabName)
+  
     return (
       <View style={styles.secondWhiteBoard}>
         <Text style={styles.환경대기정보}>{info.tabTitle}</Text>
         <View style={styles.envTitleRow}>
           <Text style={styles.title_01}>{info.tabTitleDetail.datail_01}</Text>
           <Text
-            style={
-              info.tabName === '재활용'
-                ? styles.title_01_water
-                : styles.title_01
-            }>
+            style={ info.tabName === '재활용' ? styles.title_01_water : styles.title_01 }>
             {info.tabTitleDetail.detail_02}
           </Text>
           <Text style={styles.title_01}>{info.tabTitleDetail.detail_03}</Text>
         </View>
-        <View style={styles.envTitleRes}>
-          <Text
-            style={
-              info.tabTitleRes.res_01 === '매우나쁨'
-                ? styles.res_01_red
-                : styles.res_01
-            }>
-            {info.tabTitleRes.res_01}
-          </Text>
-          <Text
-            style={
-              info.tabTitleRes.res_02 === '매우나쁨'
-                ? styles.res_01_red
-                : styles.res_01
-            }>
-            {info.tabTitleRes.res_02}
-          </Text>
-          <Text
-            style={
-              info.tabTitleRes.res_03 === '매우나쁨'
-                ? styles.res_01_red
-                : styles.res_01
-            }>
-            {info.tabTitleRes.res_03}
-          </Text>
-        </View>
+         {this.changeEnvTabDetail(info.tabName,info)}
       </View>
+      
     );
   };
 
@@ -304,7 +331,7 @@ export class Board extends Component {
         },
         tabTitleRes: {
           res_01: '',
-          res_02: '',
+          res_02: '(국회  제출 데이터)',
           res_03: '',
         },
       };
@@ -353,7 +380,7 @@ export class Board extends Component {
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
           <View style={styles.listBox}>
-            <View style={styles.imageStack}>
+            <View>
               <ImageBackground
                 source={require('../assets/images/saessak_head.png')}
                 resizeMode="contain"
@@ -449,7 +476,7 @@ export class Board extends Component {
                         ? styles.secondBoardTabTxt_selected
                         : styles.secondBoardTabTxt
                     }>
-                    재활용 비율
+                    페트병 재활용
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -471,7 +498,9 @@ export class Board extends Component {
                   </Text>
                 </TouchableOpacity>
               </View>
+   
               {this.ChangeEnvTab()}
+         
             </View>
           </View>
           {this.setNoListData()}
@@ -526,87 +555,84 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   image: {
-    top: 0,
-    width: 450,
-    height: 200,
+    width: wp(100),
+    height: hp(25),
     position: 'absolute',
     left: -1,
     flexDirection: 'row',
   },
   image_imageStyle: {},
   imageSetting: {
-    height: 25,
-    width: 25,
-    marginTop: -7,
-    marginLeft: -2,
+    height: hp(5),
+    width: wp(5),
+    marginTop: hp(-2),
+    marginLeft: wp(1),
   },
   saessakLogo: {
-    height: 35,
-    width: 35,
-    marginLeft: 330,
-    marginTop: -5,
+    height: hp(7),
+    width: wp(7),
+    marginLeft: wp(82),
+    marginTop: hp(-1),
   },
   imageSettingRow: {
-    height: 40,
     flexDirection: 'row',
     flex: 1,
-    marginRight: 14,
-    marginLeft: 12,
-    marginTop: 150,
+    marginLeft: wp(3),
+    marginTop: hp(18),
   },
   firstBoard: {
-    top: 182,
-    left: 21,
-    width: 365,
-    height: 180,
+    top: hp(22),
+    left: wp(5),
+    width: wp(88),
+    height: hp(22),
     position: 'absolute',
     backgroundColor: 'rgba(230,230,230,0.6)',
     borderRadius: 15,
   },
   whiteBoard: {
-    width: 320,
-    height: 140,
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    width: wp(79),
+    height: hp(17),
+    backgroundColor: "'rgba(255,255,255,0.6)'",
     borderRadius: 15,
     flexDirection: 'row',
-    marginTop: 17,
-    marginLeft: 20,
+    marginTop: hp(2),
+    marginLeft: wp(5),
   },
   levelImg: {
-    width: 105,
-    height: 116,
+    width: wp(25),
+    height: hp(15),
   },
   myLevel: {
     fontFamily: 'roboto-700',
     color: 'rgba(34,39,31,1)',
-    height: 32,
-    width: 101,
+    height: hp(6),
+    width: wp(25),
     fontSize: 22,
-    marginTop: 15,
+    marginTop: hp(2),
   },
   areaImg: {
-    width: 75,
-    height: 75,
-    marginLeft: 13,
-    marginTop: 2,
+    width: wp(18),
+    height: hp(9),
+    marginLeft: wp(3.5),
+    marginTop: wp(1),
   },
   whiteBoardView: {
-    height: 116,
+    height: wp(33),
     flexDirection: 'row',
     flex: 1,
-    marginRight: 11,
-    marginTop: 4,
+    marginRight: wp(3),
+    marginTop: wp(1),
   },
   image9_imageStyle: {},
   n건: {
     fontFamily: 'calibri-bold',
     color: '#121212',
-    height: 22,
-    width: 34,
+    height: hp(3),
+    width: wp(10),
     fontSize: 15,
     textAlign: 'center',
-    marginTop: 32,
-    marginLeft: 19,
+    marginTop: hp(3.5),
+    marginLeft: wp(3.5),
   },
   startArea: {
     fontFamily: 'calibri-bold',
@@ -615,10 +641,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    top: 290,
-    left: 170,
-    width: 160,
-    height: 50,
+    top: hp(36),
+    left: wp(40),
+    width: wp(40),
+    height: hp(6),
     alignItems: 'center',
     backgroundColor: '#7cc594',
     padding: 10,
@@ -626,80 +652,57 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
   image9: {
-    top: 220,
-    left: 145,
-    width: 85,
-    height: 85,
-    position: 'absolute',
-  },
-  image9Stack: {
-    top: 0,
-    left: 0,
-    width: 140,
-    height: 108,
+    top: hp(28),
+    left: wp(35),
+    width: wp(20),
+    height: hp(10),
     position: 'absolute',
   },
   myGu: {
-    top: 15,
-    left: 0,
+    top: hp(2),
     fontFamily: 'roboto-700',
     color: 'rgba(37,119,62,1)',
-    height: 20,
+    height: hp(3),
     fontSize: 15,
     textAlign: 'center',
   },
   guGrade: {
-    top: 15,
-    left: 0,
+    top: hp(1),
     fontFamily: 'roboto-700',
     color: '#121212',
-    height: 20,
+    height: hp(3),
     fontSize: 15,
     textAlign: 'center',
   },
   myGuStack: {
-    // backgroundColor: "red",
-    top: 201,
-    left: 248,
-    width: 72,
-    height: 72,
+    top: hp(25),
+    left: wp(63.5),
+    width: wp(18),
+    height: hp(9),
     borderRadius: 50,
     position: 'absolute',
   },
-  image9StackStack: {
-    width: 171,
-    height: 108,
-    marginTop: 5,
-    marginLeft: 14,
-  },
-  imageStack: {
-    top: 0,
-    left: 0,
-    width: 380,
-    height: 437,
-    position: 'absolute',
-  },
   secondBoard: {
-    top: 370,
-    left: 21,
-    width: 365,
-    height: 180,
+    top: hp(45),
+    left: wp(5),
+    width: wp(89),
+    height: hp(22),
     position: 'absolute',
     backgroundColor: 'rgba(239,249,236,1)',
     borderRadius: 15,
   },
   secondBoardTab: {
-    width: 108,
-    height: 30,
-    left: 5,
+    width: wp(26),
+    height: hp(3.5),
+    left: wp(1),
     backgroundColor: 'rgba(241,249,237,0.6)',
     borderRadius: 5,
   },
   secondBoardTab_selected: {
-    width: 108,
-    height: 30,
-    left: 5,
-    backgroundColor: 'rgba(108,197,124,1)',
+    width: wp(26),
+    height: hp(3.5),
+    left: wp(1),
+   backgroundColor: 'rgba(108,197,124,1)',
     borderRadius: 5,
   },
   secondBoardTabTxt: {
@@ -707,112 +710,136 @@ const styles = StyleSheet.create({
     color: 'rgba(6,6,6,1)',
     textAlign: 'center',
     fontSize: 12,
-    marginTop: 4,
+    marginTop: hp(0.5),
   },
   secondBoardTabTxt_selected: {
     fontFamily: 'roboto-regular',
     color: 'rgba(255,255,255,1)',
     textAlign: 'center',
     fontSize: 12,
-    marginTop: 4,
+    marginTop: hp(0.5),
   },
   secondBoard_02: {
-    height: 25,
+    height: hp(3),
     flexDirection: 'row',
-    marginTop: 15,
-    marginLeft: 12,
-    marginRight: 22,
+    marginTop: hp(2),
+    marginLeft: wp(3),
+    marginRight: wp(5),
   },
   secondWhiteBoard: {
-    width: 330,
-    height: 115,
+    width: wp(79),
+    height:  hp(15),
     backgroundColor: 'rgba(255,255,255,0.6)',
     borderRadius: 15,
-    marginTop: 5,
-    marginLeft: 15,
+    marginTop: hp(1),
+    marginLeft: wp(5),
   },
   환경대기정보: {
     fontFamily: 'roboto-700',
     color: 'rgba(0,0,0,1)',
     textAlign: 'center',
     fontSize: 15,
-    marginTop: 12,
+    marginTop: hp(1),
   },
   envTitleRow: {
-    height: 20,
+    height: hp(3),
     flexDirection: 'row',
-    marginTop: 10,
-    marginLeft: 20,
-    marginRight: 20,
+    marginTop: hp(1),
+    marginLeft: wp(5.5),
+    marginRight: hp(3),
   },
   title_01: {
-    width: 70,
-    height: 20,
+    width: wp(17),
+    height: hp(3),
     fontFamily: 'roboto-700',
     color: 'rgba(0,0,0,1)',
     textAlign: 'center',
     fontSize: 15,
-    marginLeft: 20,
+    marginLeft: wp(5),
   },
   title_01_water: {
-    width: 100,
-    height: 40,
+    width: wp(20),
+    height: hp(4),
     fontFamily: 'roboto-700',
-    color: 'rgba(158,158,158,1)',
+    color: 'black',
     textAlign: 'center',
     fontSize: 20,
-    marginTop: 7,
-    marginLeft: 5,
+    marginTop: hp(1),
+    marginLeft: wp(2),
   },
   envTitleRes: {
-    height: 20,
+    height: hp(3),
     flexDirection: 'row',
-    marginTop: 6,
-    marginLeft: 20,
-    marginRight: 20,
+    marginTop: hp(1),
+    marginLeft: wp(3),
+    marginRight: wp(2),
   },
-  res_01: {
-    width: 70,
-    height: 20,
+  dust_res_01: {
+    width: wp(10),
+    height: hp(5),
+    textAlign: 'center',
+    marginLeft: wp(11.5),
+  },
+  res_01: { 
+    width: wp(9),
+    height: hp(3),
     fontFamily: 'roboto-regular',
     color: 'rgba(158,158,158,1)',
     textAlign: 'center',
     fontSize: 15,
-    marginLeft: 20,
+    marginLeft: wp(12.5),
+
+  },
+  res_01_recycle: { 
+    width: wp(40),
+    height: hp(3),
+    fontFamily: 'roboto-regular',
+    color: 'rgba(158,158,158,1)',
+    textAlign: 'center',
+    fontSize: 15,
+    marginLeft: wp(16),
+
   },
   res_01_red: {
-    width: 70,
-    height: 20,
+    width: wp(9),
+    height: hp(3),
     fontFamily: 'roboto-regular',
     color: 'red',
     textAlign: 'center',
     fontSize: 15,
-    marginLeft: 20,
+    marginLeft: wp(12.5),
+  },
+  res_02_water: {
+    width: wp(9),
+    height: hp(3),
+    fontFamily: 'roboto-regular',
+    color: 'rgba(158,158,158,1)',
+    textAlign: 'center',
+    fontSize: 15,
+    marginLeft: wp(12.5),
   },
   listBox: {
-    width: 380,
-    height: 545,
-    marginTop: -52,
-    marginLeft: 1,
-  },
-  thirdBoard: {
-    width: 365,
-    height: 90,
-    backgroundColor: 'rgba(230,230,230,0.6)',
-    borderRadius: 15,
-    marginTop: 12,
-    marginLeft: 21,
+    height: hp(68),
+    marginTop: hp(-5),
   },
   noData:{
-    width: 365,
-    height: 290,
-    marginTop: 12,
-    marginLeft: 21,
+    width: wp(89),
+    height: hp(36),
+    marginLeft: wp(5),
     borderRadius: 15,
     backgroundColor: 'rgba(230,230,230,0.6)',
   },
+  thirdBoard: {
+    width: wp(89),
+    height: hp(12),
+    top:hp(-1),
+    backgroundColor: 'rgba(230,230,230,0.6)',
+    borderRadius: 15,
+    marginLeft: wp(5),
+    marginTop: hp(1)
+  },
   noDataTxt :{
-    marginTop: 120,
+    marginTop: wp(30),
     fontFamily: 'roboto-regular',
     color: 'rgba(158,158,158,1)',
     textAlign: 'center',
@@ -823,57 +850,55 @@ const styles = StyleSheet.create({
     color: 'rgba(0,0,0,1)',
     textAlign: 'left',
     fontSize: 15,
-    marginLeft: 7,
+  
   },
   barcodeColumn: {
-    width: 130,
-    marginTop: 1,
+    width: wp(20),
+    marginLeft: wp(1),
+    marginTop: hp(1),
   },
   recycleImg: {
-    width: 40,
-    height: 40,
+    width: wp(10),
+    height: hp(5),
     alignSelf: 'flex-end',
+  },
+  recycleImgRow: {
+    height: hp(5),
+    flexDirection: 'row',
+    marginTop: hp(1),
+    marginRight: wp(3),
   },
   recycleCount: {
     fontFamily: 'roboto-regular',
     color: 'rgba(249,6,6,1)',
     textAlign: 'center',
     fontSize: 15,
-    marginTop: 10,
-  },
-  recycleImgRow: {
-    height: 40,
-    flexDirection: 'row',
-    marginTop: 10,
-    marginRight: 35,
+    marginTop: hp(1),
   },
   dateImg: {
-    height: 20,
-    width: 20,
+    height: hp(9),
+    width: wp(5),
     alignSelf: 'flex-end',
-    marginLeft: 12,
-    marginBottom: 5,
+    marginLeft: wp(2),
   },
   dateText: {
     fontFamily: 'roboto-regular',
     color: 'rgba(0,0,0,1)',
     textAlign: 'center',
     fontSize: 15,
-    marginLeft: 7,
-    marginTop: 46,
-    marginBottom: 9,
+    marginLeft: wp(2),
+    marginTop: hp(6)
   },
   image16: {
-    height: 65,
-    width: 65,
-    marginLeft: 35,
+    height: hp(10),
+    width: wp(15),
+    marginLeft: wp(20),
   },
   listItem: {
-    height: 73,
+    height: hp(12),
     flexDirection: 'row',
-    marginTop: 13,
-    marginLeft: 5,
-    marginRight: 15,
+    marginTop: hp(1),
+    marginLeft: wp(2)
   },
 });
 //export default Board;

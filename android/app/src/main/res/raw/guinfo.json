@@ -1,0 +1,206 @@
+{
+    "guCtgrWater" : [
+        {
+            "guName":  "강남구",
+            "guCode" : "11230"
+        },
+        {
+            "guName":  "강동구",
+            "guCode" : "11250"
+        },
+        {
+            "guName":  "강북구",
+            "guCode" : "11090"
+        },        {
+            "guName":  "강서구",
+            "guCode" : "11160"
+        },
+        {
+            "guName":  "관악구",
+            "guCode" : "11210"
+        },
+        {
+            "guName":  "광진구",
+            "guCode" : "11050"
+        },
+        {
+            "guName":  "구로구",
+            "guCode" : "11170"
+        },
+        {
+            "guName":  "금천구",
+            "guCode" : "11180"
+        },
+        {
+            "guName":  "노원구",
+            "guCode" : "11110"
+        },
+        {
+            "guName":  "도봉구",
+            "guCode" : "11100"
+        },
+        {
+            "guName":  "동대문구",
+            "guCode" : "11060"
+        },
+        {
+            "guName":  "동작구",
+            "guCode" : "11200"
+        },
+        {
+            "guName":  "마포구",
+            "guCode" : "11140"
+        },
+        {
+            "guName":  "서대문구",
+            "guCode" : "11130"
+        },
+        {
+            "guName":  "서초구",
+            "guCode" : "11220"
+        },
+        {
+            "guName":  "성동구",
+            "guCode" : "11040"
+        },
+        {
+            "guName":  "성북구",
+            "guCode" : "11080"
+        },
+        {
+            "guName":  "송파구",
+            "guCode" : "11240"
+        },
+        {
+            "guName":  "양천구",
+            "guCode" : "11150"
+        },
+        {
+            "guName":  "영등포구",
+            "guCode" : "11190"
+        },
+        {
+            "guName":  "용산구",
+            "guCode" : "11030"
+        },
+        {
+            "guName":  "은평구",
+            "guCode" : "11120"
+        },    {
+            "guName":  "종로구",
+            "guCode" : "11010"
+        },
+        {
+            "guName":  "중구",
+            "guCode" : "11020"
+        },
+        {
+            "guName":  "중랑구",
+            "guCode" : "11070"
+        }
+    ],
+    "guCtgrWeather" : [
+        {
+            "guName":  "중랑구",
+            "guCode" : "111151"
+        },
+        {
+            "guName":  "노원구",
+            "guCode" : "111311"
+        },
+        {
+            "guName":  "은평구",
+            "guCode" : "111181"
+        },
+        {
+            "guName":  "서대문구",
+            "guCode" : "111191"
+        },
+        {
+            "guName":  "마포구",
+            "guCode" : "111201"
+        },
+        {
+            "guName":  "양천구",
+            "guCode" : "111301"
+        },
+        {
+            "guName":  "강서구",
+            "guCode" : "111212"
+        },
+        {
+            "guName":  "구로구",
+            "guCode" : "111221"
+        },
+        {
+            "guName":  "금천구",
+            "guCode" : "111281"
+        },
+        {
+            "guName":  "영등포구",
+            "guCode" : "111231"
+        },
+        {
+            "guName":  "동작구",
+            "guCode" : "111241"
+        },
+        {
+            "guName":  "송파구",
+            "guCode" : "111273"
+        },
+        {
+            "guName":  "강동구",
+            "guCode" : "111274"
+        },
+        {
+            "guName":  "종로구",
+            "guCode" : "111123"
+        },
+        {
+            "guName":  "중구",
+            "guCode" : "111121"
+        },
+        {
+            "guName":  "용산구",
+            "guCode" : "111131"
+        },
+        {
+            "guName":  "강북구",
+            "guCode" : "111291"
+        },
+        {
+            "guName":  "도봉구",
+            "guCode" : "111171"
+        },
+        {
+            "guName":  "관악구",
+            "guCode" : "111251"
+        },
+        {
+            "guName":  "서초구",
+            "guCode" : "111262"
+        },
+        {
+            "guName":  "강남구",
+            "guCode" : "111261"
+        },
+        {
+            "guName":  "성북구",
+            "guCode" : "111161"
+        },
+        {
+            "guName":  "동대문구",
+            "guCode" : "111152"
+        },
+        {
+            "guName":  "광진구",
+            "guCode" : "111141"
+        },
+        {
+            "guName":  "성동구",
+            "guCode" : "111142"
+        }
+        
+    ]
+
+}
