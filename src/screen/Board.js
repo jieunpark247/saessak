@@ -29,7 +29,10 @@ export class Board extends Component {
     super(props);
     this.state = { 
       data : [] , 
-      allRecycleList :[],
+      allRecycleList :{
+        "종로구":[],"중구":[],"용산구":[],"성동구":[],"광진구":[],"동대문구":[],"중랑구":[],"성북구":[],"강북구":[],"도봉구":[],"노원구":[],"은평구":[],"서대문구":[],"마포구":[],
+        "양천구":[],"강서구":[],"구로구":[],"금천구":[],"영등포구":[],"동작구":[],"관악구":[],"서초구":[],"강남구":[], "송파구":[], "강동구":[]
+      },
       weatherData : [],
       waterData : [],
       userInfo : {},
@@ -78,8 +81,9 @@ export class Board extends Component {
         var recycleArray = [];
         if(rs.val() === null || rs.val().users[userInfo.guName] ==null ) return 
         var recycleList = rs.val().users[userInfo.guName][userInfo.userId]
-        console.log("========================================>>")
+        console.log("============================recycleList============================")
         console.log(recycleList)
+        console.log("============================recycleList============================")
         for(var i in recycleList){
           recycleArray.push(recycleList[i]);
         }
@@ -88,24 +92,27 @@ export class Board extends Component {
         const guList = rs.val().users;
         let guCntData = this.state.guCntData;
         let rankArray = [];
-        let allRecycleList = {};
+        let  allRecycleList = {
+          "종로구":[],"중구":[],"용산구":[],"성동구":[],"광진구":[],"동대문구":[],"중랑구":[],"성북구":[],"강북구":[],"도봉구":[],"노원구":[],"은평구":[],"서대문구":[],"마포구":[],
+          "양천구":[],"강서구":[],"구로구":[],"금천구":[],"영등포구":[],"동작구":[],"관악구":[],"서초구":[],"강남구":[], "송파구":[], "강동구":[]
+        }
         for(let gu in guList){
           const userList = guList[gu];
           let guCnt = 0;
           for (let user in userList) {
             guCnt += Object.keys(userList[user]).length;
-            allRecycleList[gu] += Object.values(userList[user]);
+            let rcInfo = Object.values(userList[user]);
+            for(let rc in rcInfo){
+              allRecycleList[gu].push(rcInfo[rc]);
+            }
           }
           guCntData[gu] = guCnt;
         }
-console.log("?????????????????????????")
-        console.log(allRecycleList["강남구"])
+
         for (const [key, value] of Object.entries(guCntData)) {
           const guData = {guName:key, guCnt:value};
           rankArray.push(guData);
         }
-        
-
         rankArray.sort(function(a, b) {
           return b.guCnt - a.guCnt;
         });
