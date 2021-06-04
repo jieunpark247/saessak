@@ -43,32 +43,22 @@ import {
       reference.putFile(imageUri)
       .then((response) => {
           //DB에 쓰기 
-          storage().ref().child('saessak').list().then(result => {  
-            result.items.forEach(pics => {
-               let fullPath = pics.fullPath;
-                   console.log(fullPath.indexOf(ext))
-                  if(fullPath.indexOf(ext) > -1){
-                      storage().ref().child(pics.fullPath).getDownloadURL().then((url) => {
-                          console.log("url불러옴 " + url)
-                          var date = new Date()
-                          const data = {
-                            userId: this.state.userInfo.userId,
-                            imageUri:url,
-                            barcodeValue:barcodeValue,
-                            today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(),
-                            guName : this.state.userInfo.guName
-                          }
-                          this.writeDB(data)
-                      })
-                  }
-
-            });
-        })
-        
-
-
-
-
+          reference.getDownloadURL().then((url)=> {
+            console.log('url:'+url);
+            imageRealUrl = url;
+            var date = new Date()
+            const data = {
+                userId: this.state.userInfo.userId,
+                imageUri:imageRealUrl,
+                barcodeValue:barcodeValue,
+                today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(),
+                guName : this.state.userInfo.guName
+            }
+            this.writeDB(data)
+          }).catch((error)=> {
+              console.log('error:'+url);
+              imageRealUrl = null;
+          });
 
       })
       .catch((error) => {
