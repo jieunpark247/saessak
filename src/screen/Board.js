@@ -29,6 +29,7 @@ export class Board extends Component {
     super(props);
     this.state = { 
       data : [] , 
+      allRecycleList :[],
       weatherData : [],
       waterData : [],
       userInfo : {},
@@ -87,20 +88,24 @@ export class Board extends Component {
         const guList = rs.val().users;
         let guCntData = this.state.guCntData;
         let rankArray = [];
+        let allRecycleList = {};
         for(let gu in guList){
           const userList = guList[gu];
           let guCnt = 0;
           for (let user in userList) {
-              guCnt += Object.keys(userList[user]).length;
+            guCnt += Object.keys(userList[user]).length;
+            allRecycleList[gu] += Object.values(userList[user]);
           }
           guCntData[gu] = guCnt;
         }
-
+console.log("?????????????????????????")
+        console.log(allRecycleList["강남구"])
         for (const [key, value] of Object.entries(guCntData)) {
           const guData = {guName:key, guCnt:value};
           rankArray.push(guData);
         }
         
+
         rankArray.sort(function(a, b) {
           return b.guCnt - a.guCnt;
         });
@@ -116,7 +121,7 @@ export class Board extends Component {
         console.log('rankArray');
         console.log(rankArray);
 
-        this.setState({data : recycleArray, rankArray:rankArray});
+        this.setState({data : recycleArray, rankArray:rankArray, allRecycleList:allRecycleList});
       });
   }
   getWeather = async guCode => {
@@ -241,7 +246,6 @@ export class Board extends Component {
       );
 
     }else if(tabName === '대기정보'){
-      console.log(">>>>>>>대기정보")
       return(
         <View style={styles.envTitleRes}>
         <Image
@@ -251,7 +255,7 @@ export class Board extends Component {
          source={info.tabTitleRes.res_02}
         style={styles.dust_res_01}></Image>
         <Image
-          source={info.tabTitleRes.res_02}
+         source={info.tabTitleRes.res_03}
         style={styles.dust_res_01}></Image>
         </View>
       );
@@ -356,7 +360,7 @@ export class Board extends Component {
   };
 
     moveGuPage = () => {
-      this.props.navigation.navigate('Ranking',{data:{rank:this.state.rankArray,myGu:this.state.userInfo.guName}})
+      this.props.navigation.navigate('Ranking',{data:{rank:this.state.rankArray,myGu:this.state.userInfo.guName,allRecycleList:this.state.allRecycleList}})
     }
     setNoListData = () =>{
       if(this.state.data.length > 0) return
@@ -659,7 +663,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   myGu: {
-    top: hp(2.5),
+    top: hp(2),
     fontFamily: 'roboto-700',
     color: 'rgba(37,119,62,1)',
     height: hp(3),
@@ -667,7 +671,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   guGrade: {
-    top: hp(2),
+    top: hp(1.5),
     fontFamily: 'roboto-700',
     color: '#121212',
     height: hp(3),
@@ -775,9 +779,8 @@ const styles = StyleSheet.create({
     marginRight: wp(2),
   },
   dust_res_01: {
-    width: wp(9),
+    width: wp(10),
     height: wp(9),
-    textAlign: 'center',
     marginLeft: wp(11.5),
   },
   res_01: { 
@@ -850,7 +853,7 @@ const styles = StyleSheet.create({
     color: 'rgba(0,0,0,1)',
     textAlign: 'left',
     fontSize: 15,
-  
+    width: wp(40),
   },
   barcodeColumn: {
     width: wp(20),
@@ -865,7 +868,7 @@ const styles = StyleSheet.create({
   recycleImgRow: {
     height: hp(5),
     flexDirection: 'row',
-    marginTop: hp(1),
+    marginTop: hp(1.5),
     marginRight: wp(3),
   },
   recycleCount: {

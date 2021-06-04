@@ -3,7 +3,8 @@
  import { WebView } from 'react-native-webview';
  import RankItem from '../components/RankItem';
  import RankPopup from '../components/RankPopup';
- 
+ import AsyncStorage from '@react-native-community/async-storage';
+ import database from '@react-native-firebase/database';
  export class Ranking extends Component {
     constructor(){
         super();
@@ -12,7 +13,8 @@
             data: [],
             myGu: '',
             modalGu: '',
-            modalVisible: false
+            modalVisible: false,
+            guRecycleList : []
         };
     }
 
@@ -28,9 +30,14 @@
 
     guClick = (gu) =>{
         const rankData = this.props.route.params.data.rank;
+        const recycleList = this.props.route.params.data.allRecycleList;
         let guData= {}
+        let guRecycleList = [];
+        console.log(recycleList)
         rankData.map(item=>{
             if(item.guName == gu){
+                if(recycleList[gu] != null)
+                    guRecycleList = recycleList[gu];
                 guData = item;
                 return;
             }
@@ -38,6 +45,7 @@
         this.setState({
             modalVisible: true,
             modalGu: guData,
+            guRecycleList :guRecycleList
         })
     };
 
@@ -47,10 +55,11 @@
         })
     };
 
+
      render() {
          return (
              <View style={styles.container}>
-                <RankPopup visible={this.state.modalVisible} setModalVisible={this.setModalVisible} gu={this.state.modalGu}/>
+                <RankPopup visible={this.state.modalVisible} setModalVisible={this.setModalVisible} gu={this.state.modalGu} guRecycleList = {this.state.guRecycleList}/>
                 <WebView
                     style={styles.rankMapArea}
                     source={{uri: 'https://sassak-29409.web.app/'}}
