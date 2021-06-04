@@ -47,10 +47,8 @@
         this.setImgSrc(guRecycleList,guData);
 
     };
-    setImgSrc = async(guRecycleList,guData) => {
-  
+    setImgSrc = async(guRecycleList, guData) => {
         try{
-            console.log("완료 ")
             await storage().ref().child('saessak').list().then(result => {  
                 result.items.forEach(pics => {
                    let fullPath = pics.fullPath;
@@ -59,8 +57,7 @@
                         let imgURL = guRecycleList[rc].profile_picture.split('Camera/');
                         if(fullPath.indexOf(imgURL[1]) > -1){
                             storage().ref().child(pics.fullPath).getDownloadURL().then((url) => {
-                                console.log("url불러옴 ")
-                                console.log(url)
+                                console.log("url불러옴 " + url)
                                 guRecycleList[rc].profile_picture = url;
                                 console.log(guRecycleList[rc])
                             })
@@ -69,15 +66,15 @@
                 });
             })
         }catch(error){
-            console.log("errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+            console.log("error")
         }
 
-console.log("끝>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         this.setState({
             modalVisible: true,
             modalGu: guData,
             guRecycleList :guRecycleList
         })
+
 
     }
     setModalVisible = () => {

@@ -39,20 +39,37 @@ import {
       console.log("barcodeValue : " , barcodeValue)
       const ext = imageUri.split('Camera').pop();
       const reference = storage().ref(`saessak${ext}`);
+      console.log(ext)
       reference.putFile(imageUri)
       .then((response) => {
-        console.log('success save picture in firebase')
+          //DB에 쓰기 
+          storage().ref().child('saessak').list().then(result => {  
+            result.items.forEach(pics => {
+               let fullPath = pics.fullPath;
+                   console.log(fullPath.indexOf(ext))
+                  if(fullPath.indexOf(ext) > -1){
+                      storage().ref().child(pics.fullPath).getDownloadURL().then((url) => {
+                          console.log("url불러옴 " + url)
+                          var date = new Date()
+                          const data = {
+                            userId: this.state.userInfo.userId,
+                            imageUri:url,
+                            barcodeValue:barcodeValue,
+                            today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(),
+                            guName : this.state.userInfo.guName
+                          }
+                          this.writeDB(data)
+                      })
+                  }
 
-        //DB에 쓰기 
-        var date = new Date()
-        const data = {
-          userId: this.state.userInfo.userId,
-          imageUri:imageUri,
-          barcodeValue:barcodeValue,
-          today : date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(),
-          guName : this.state.userInfo.guName
-        }
-        this.writeDB(data)
+            });
+        })
+        
+
+
+
+
+
       })
       .catch((error) => {
           console.log('error')
