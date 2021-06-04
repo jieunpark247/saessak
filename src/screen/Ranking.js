@@ -5,6 +5,7 @@
  import RankPopup from '../components/RankPopup';
  import AsyncStorage from '@react-native-community/async-storage';
  import database from '@react-native-firebase/database';
+ import storage from '@react-native-firebase/storage';
  export class Ranking extends Component {
     constructor(){
         super();
@@ -21,11 +22,13 @@
     componentDidMount  = () =>{
         this.setState({myGu:this.props.route.params.data.myGu});
         const rankData = this.props.route.params.data.rank;
+        this.setState({recycleList: this.props.route.params.data.allRecycleList}) 
         const rank= {}
         rankData.map(item=>{
             rank[item.guName] = item.rank;
         })
         this.webview.postMessage(rank);
+
     }
 
     guClick = (gu) =>{
@@ -33,7 +36,6 @@
         const recycleList = this.props.route.params.data.allRecycleList;
         let guData= {}
         let guRecycleList = [];
-        console.log(recycleList)
         rankData.map(item=>{
             if(item.guName == gu){
                 if(recycleList[gu] != null)
@@ -42,19 +44,47 @@
                 return;
             }
         });
+        this.setImgSrc(guRecycleList,guData);
+
+    };
+    setImgSrc = async(guRecycleList,guData) => {
+  
+        try{
+            console.log("완료 ")
+            await storage().ref().child('saessak').list().then(result => {  
+                result.items.forEach(pics => {
+                   let fullPath = pics.fullPath;
+
+                   for(rc in guRecycleList){
+                        let imgURL = guRecycleList[rc].profile_picture.split('Camera/');
+                        if(fullPath.indexOf(imgURL[1]) > -1){
+                            storage().ref().child(pics.fullPath).getDownloadURL().then((url) => {
+                                console.log("url불러옴 ")
+                                console.log(url)
+                                guRecycleList[rc].profile_picture = url;
+                                console.log(guRecycleList[rc])
+                            })
+                        }
+                    }
+                });
+            })
+        }catch(error){
+            console.log("errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+        }
+
+console.log("끝>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         this.setState({
             modalVisible: true,
             modalGu: guData,
             guRecycleList :guRecycleList
         })
-    };
 
+    }
     setModalVisible = () => {
         this.setState({
             modalVisible: false
         })
     };
-
 
      render() {
          return (
