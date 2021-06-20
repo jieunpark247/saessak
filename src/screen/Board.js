@@ -1,20 +1,11 @@
 import React, {Component} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  View,
-  Image,
-  ImageBackground,
-  Text,
-  Alert,
-  TouchableOpacity,
-  PermissionsAndroid,
-  Platform,
-} from 'react-native';
+import { SafeAreaView,  ScrollView, StyleSheet,  View,  Image, ImageBackground,  Text,  Alert,  TouchableOpacity,  PermissionsAndroid,  Platform,} from 'react-native';
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-community/async-storage';
 import guInfo from '../../guInfo.json';
+import BoardMyInfo from '../components/BoardMyInfo';
+import BoardEnvInfo from '../components/BoardEnvInfo';
+import BoardRcyInfo from '../components/BoardRcyInfo';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -24,6 +15,7 @@ const API_KEY_WATER = '7a4e706747716f7237394373666a43';
 const API_KEY_WEATHER = '5272566657716f723734536d526c49';
 const parseString = require('react-native-xml2js').parseString;
 const API_URL = 'http://openapi.seoul.go.kr:8088'
+
 export class Board extends Component {
   constructor(props) {
     super(props);
@@ -47,7 +39,7 @@ export class Board extends Component {
   componentDidMount = () => {
       console.log('======== componentDidMount =========');
       AsyncStorage.getItem('users', (err, result) => {
-      var userInfo = JSON.parse(result);
+      let userInfo = JSON.parse(result);
       console.log("==========userInfo==========")
       console.log(userInfo)
 
@@ -61,16 +53,16 @@ export class Board extends Component {
       // 구 코드 추가
       userInfo.guWeatherCode = myGuWeatherInfo[0] == undefined ?  '' : myGuWeatherInfo[0].guCode ; 
       userInfo.guWaterCode = myGuWaterInfo[0] == undefined ?  '' : myGuWaterInfo[0].guCode  ;
-
-      this.setState({userInfo: userInfo});
+     
+      this.setState({userInfo: userInfo}); // 내 개인 정보 저장
 
       //날씨 API 추가 
-      console.log("guCode : " + this.state.userInfo.guWaterCode + '  , ' + this.state.userInfo.guWeatherCode)
+      console.log(`myGuCode :  ${this.state.userInfo.guWaterCode} , ${this.state.userInfo.guWeatherCode}`)
       if(this.state.userInfo.guWaterCode != '' || this.state.userInfo.guWeatherCode != '') {
         this.getWather(this.state.userInfo.guWaterCode) 
         this.getWeather(this.state.userInfo.guWeatherCode)
       }
-      //데이터 가져오기 
+      //데이터 가져오기 (firebase)
       this.getDatbase(userInfo)
     });
   };
@@ -78,17 +70,17 @@ export class Board extends Component {
   getDatbase = (userInfo) => {
     const ref = database().ref();
     ref.on("value", rs =>{
-        var recycleArray = [];
-        if(rs.val() === null || rs.val().users[userInfo.guName] ==null ) return 
-        var recycleList = rs.val().users[userInfo.guName][userInfo.userId]
+        let recycleArray = [];
+        if(rs.val() === null || rs.val().users[userInfo.guName] == null ) return
+        let recycleList = rs.val().users[userInfo.guName][userInfo.userId]
         console.log("============================recycleList============================")
         console.log(recycleList)
         console.log("============================recycleList============================")
-        for(var i in recycleList){
+        for(let i in recycleList){
           recycleArray.push(recycleList[i]);
         }
         
-        //지역구별 재활용 건수 저장
+        //지역구별 재활용 건수 저장(랭킹맵에서 사용해야한다> 지역구별 모든 데이터 보여줌)
         const guList = rs.val().users;
         let guCntData = this.state.guCntData;
         let rankArray = [];
@@ -131,18 +123,21 @@ export class Board extends Component {
         this.setState({data : recycleArray, rankArray:rankArray, allRecycleList:allRecycleList});
       });
   }
+  /**
+   * 날씨 정보 받아오기
+   */
   getWeather = async guCode => {
-    var url = `${API_URL}/${API_KEY_WEATHER}/xml/ListAirQualityByDistrictService/1/5/${guCode}/`;
+    let url = `${API_URL}/${API_KEY_WEATHER}/xml/ListAirQualityByDistrictService/1/5/${guCode}/`;
     await fetch(url)
       .then(response => response.text())
       .then(data => {
-        //  console.log(data);
         parseString(data, (err, result) => {
           const data = JSON.parse(
             JSON.stringify(result.ListAirQualityByDistrictService.row[0]),
           );
           this.setState({weatherData: data});
           this.selectTab('대기정보');
+          console.log('대기 정보 --------------')
           console.log(this.state.weatherData);
         });
       })
@@ -150,8 +145,11 @@ export class Board extends Component {
         console.log(error);
       });
   };
+  /**
+   * 수질정보 받아오기
+   */
   getWather = async guCode => {
-    var url = `${API_URL}/${API_KEY_WATER}/xml/AreaQltwtrSttus/1/5/${guCode}/`;
+    let url = `${API_URL}/${API_KEY_WATER}/xml/AreaQltwtrSttus/1/5/${guCode}/`;
     await fetch(url)
       .then(response => response.text())
       .then(data => {
@@ -167,24 +165,26 @@ export class Board extends Component {
         console.log(error);
       });
   };
+  /**
+   * 재활용 건수에 따른 새싹 성장 
+   */
   recycleLevel = cnt => {
-    var imageSrc;
     if (cnt < 2) {
-      imageSrc = require('../assets/images/saessak-img-01.png');
+      return require('../assets/images/saessak-img-01.png');
     } else if (cnt < 6) {
-      imageSrc = require('../assets/images/saessak-img-02.png');
+      return require('../assets/images/saessak-img-02.png');
     } else if (cnt < 8) {
-      imageSrc = require('../assets/images/saessak-img-03.png');
+      return require('../assets/images/saessak-img-03.png');
     } else if (cnt < 10) {
-      imageSrc = require('../assets/images/saessak-img-04.png');
+      return require('../assets/images/saessak-img-04.png');
     } else if (cnt >= 10) {
-      imageSrc = require('../assets/images/saessak-img-05.png');
+      return require('../assets/images/saessak-img-05.png');
     }
-    return imageSrc;
+    return null;
   };
 
   scanBarcode = () => {
-    var that = this;
+    let that = this;
     //To Start Scanning
     if (Platform.OS === 'android') {
       async function requestCameraPermission() {
@@ -212,6 +212,10 @@ export class Board extends Component {
       requestCameraPermission();
     }
   };
+  /**
+   * 바코드 정보가 있으면 스캔
+   * 바코드 정보가 없으면 카메라 롤
+   */
   createBarcodeYes = () =>
     Alert.alert('선택해주세요', '바코드가 있습니까?', [
       {
@@ -222,6 +226,13 @@ export class Board extends Component {
       },
       {text: '네', onPress: () => this.scanBarcode()},
     ]);
+
+  /**
+   * 미세먼지, 먼지 농도에 따른 이미지 변화
+   * @param {}} num 
+   * @param {*} limit 
+   * @returns 
+   */
   weatherLevel = (num, limit) => {
     if (num <= limit.good) { require('../assets/images/saessak-img-01.png')
       return require('../assets/images/dust_good.png');
@@ -233,7 +244,11 @@ export class Board extends Component {
       return require('../assets/images/dust_sobad.png');
     }
   };
-  changeEnvTabDetail = (tabName,info) =>{
+
+  /**
+   * 환경 정보 탭 디테일 정보
+   */
+  changeEnvTabDetail = (tabName,info) => {
     if(tabName === '수질'){
       return(
         <View style={styles.envTitleRes}>
@@ -276,18 +291,19 @@ export class Board extends Component {
         </View>
       );
     }
-  
   }
-  ChangeEnvTab = () => {
-    console.log("changeEnvTab")
+
+  /**
+   * 탭 이동 
+   * @returns 
+   */
+  changeEnvTab = () => {
     //수온(TE) 탁도(TB) PH3(PH) 32.5%
     const info = this.state.tabInfo;
     if (!info.tabTitle) return; //state 값이 null이면 리턴
-    console.log(info.tabName)
-  
     return (
       <View style={styles.secondWhiteBoard}>
-        <Text style={styles.환경대기정보}>{info.tabTitle}</Text>
+        <Text style={styles.envInfo}>{info.tabTitle}</Text>
         <View style={styles.envTitleRow}>
           <Text style={styles.title_01}>{info.tabTitleDetail.datail_01}</Text>
           <Text
@@ -298,12 +314,11 @@ export class Board extends Component {
         </View>
          {this.changeEnvTabDetail(info.tabName,info)}
       </View>
-      
     );
   };
 
   selectTab = tabName => {
-    var tabInfo;
+    let tabInfo;
     if (tabName === '대기정보') {
       tabInfo = {
         tabName: tabName,
@@ -362,13 +377,16 @@ export class Board extends Component {
         },
       };
     }
-
     this.setState({tabInfo: tabInfo});
   };
 
     moveGuPage = () => {
       this.props.navigation.navigate('Ranking',{data:{rank:this.state.rankArray,myGu:this.state.userInfo.guName,allRecycleList:this.state.allRecycleList}})
     }
+    /**
+     * 데이터가 없을 시
+     * @returns 
+     */
     setNoListData = () =>{
       if(this.state.data.length > 0) return
       return(
@@ -377,8 +395,7 @@ export class Board extends Component {
           </View>
       );
     }
-    
-
+  
   render() {
     const rankArray = this.state.rankArray;
     let rank = '-';
@@ -390,13 +407,12 @@ export class Board extends Component {
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView}>
-          <View style={styles.listBox}>
-            <View>
+          <View style={styles.listBox}>   
+             <View>
               <ImageBackground
                 source={require('../assets/images/saessak_head.png')}
                 resizeMode="contain"
-                style={styles.image}
-                imageStyle={styles.image_imageStyle}>
+                style={styles.image}>
                 <View style={styles.imageSettingRow}>
                   <Image
                     source={require('../assets/images/image-setting.png')}
@@ -408,152 +424,21 @@ export class Board extends Component {
                     style={styles.saessakLogo}></Image>
                 </View>
               </ImageBackground>
-
-              <View style={styles.firstBoard}>
-                <View style={styles.whiteBoard}>
-                  <View style={styles.whiteBoardView}>
-                    <Image
-                      source={this.recycleLevel(this.state.data.length)}
-                      resizeMode="contain"
-                      style={styles.levelImg}></Image>
-                    <Text style={styles.myLevel}>나의 점수</Text>
-                    <Image
-                      source={require('../assets/images/cityCircle.png')}
-                      resizeMode="contain"
-                      style={styles.areaImg}></Image>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.image9StackStack}>
-                <View style={styles.image9Stack}>
-                  <ImageBackground
-                    source={require('../assets/images/recycle-count.png')}
-                    resizeMode="contain"
-                    style={styles.image9}
-                    imageStyle={styles.image9_imageStyle}>
-                    <Text style={styles.n건}>
-                      {this.state.data.length + '건'}
-                    </Text>
-                  </ImageBackground>
-
-                  <TouchableOpacity
-                    onPress={this.createBarcodeYes}
-                    style={styles.button}>
-                    <Text style={styles.startArea}>시작하기</Text>
-                  </TouchableOpacity>
-                </View>
-                <TouchableOpacity
-                  onPress={this.moveGuPage}
-                  style={styles.myGuStack}>
-                  <Text style={styles.myGu}>{this.state.userInfo.guName}</Text>
-                  <Text style={styles.guGrade}>{rank+'위'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.secondBoard}>
-              <View style={styles.secondBoard_02}>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.selectTab('대기정보');
-                  }}
-                  style={
-                    this.state.tabInfo.tabName === '대기정보'
-                      ? styles.secondBoardTab_selected
-                      : styles.secondBoardTab
-                  }>
-                  <Text
-                    style={
-                      this.state.tabInfo.tabName === '대기정보'
-                        ? styles.secondBoardTabTxt_selected
-                        : styles.secondBoardTabTxt
-                    }>
-                    대기오염
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.selectTab('재활용');
-                  }}
-                  style={
-                    this.state.tabInfo.tabName === '재활용'
-                      ? styles.secondBoardTab_selected
-                      : styles.secondBoardTab
-                  }>
-                  <Text
-                    style={
-                      this.state.tabInfo.tabName === '재활용'
-                        ? styles.secondBoardTabTxt_selected
-                        : styles.secondBoardTabTxt
-                    }>
-                    페트병 재활용
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.selectTab('수질');
-                  }}
-                  style={
-                    this.state.tabInfo.tabName === '수질'
-                      ? styles.secondBoardTab_selected
-                      : styles.secondBoardTab
-                  }>
-                  <Text
-                    style={
-                      this.state.tabInfo.tabName === '수질'
-                        ? styles.secondBoardTabTxt_selected
-                        : styles.secondBoardTabTxt
-                    }>
-                    수질
-                  </Text>
-                </TouchableOpacity>
-              </View>
-   
-              {this.ChangeEnvTab()}
-         
-            </View>
-          </View>
-          {this.setNoListData()}
-          {
-          this.state.data.map((value, index) => {
-            return (
-              <View style={styles.thirdBoard} key={index}>
-                <View style={styles.listItem}>
-                  <View style={styles.barcodeColumn}>
-                    <Text style={styles.barcodeText}>
-                      {value.barcodeValue === ''
-                        ? '재활용'
-                        : value.barcodeValue}
-                    </Text>
-                    <View style={styles.recycleImgRow}>
-                      <Image
-                        source={
-                          value.barcodeValue === ''
-                            ? require('../assets/images/recycle-img-02.png')
-                            : require('../assets/images/recycle-img-01.png')
-                        }
-                        resizeMode="contain"
-                        style={styles.recycleImg}></Image>
-                      <Text style={styles.recycleCount}>1건</Text>
-                    </View>
-                  </View>
-                  <Image
-                    source={require('../assets/images/clock-img.png')}
-                    resizeMode="contain"
-                    style={styles.dateImg}></Image>
-                  <Text style={styles.dateText}>{value.todayDate}</Text>
-                  <Image
-                    source={{uri: value.profile_picture}}
-                    resizeMode="contain"
-                    style={styles.image16}></Image>
-                </View>
-              </View>
-            );
-          })
-        }
+              
+            <BoardMyInfo 
+              createBarcodeYes={this.createBarcodeYes} 
+              moveGuPage={this.moveGuPage}
+              recycleLevel={this.recycleLevel}
+              data={this.state.data}
+              userInfo={this.state.userInfo}
+              rankArray = {this.state.rankArray}
+            /> 
+          </View>     
+          <BoardEnvInfo tabInfo={this.state.tabInfo} selectTab={this.selectTab} changeEnvTab={this.changeEnvTab} /> 
+        </View>
+        {this.setNoListData()}
+        <BoardRcyInfo data={this.state.data} /> 
         </ScrollView>
-        
       </SafeAreaView>
     );
   }
@@ -565,6 +450,10 @@ const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: 'white',
   },
+  listBox: {
+    height: hp(68),
+    marginTop: hp(-5),
+  },
   image: {
     width: wp(100),
     height: hp(25),
@@ -572,7 +461,6 @@ const styles = StyleSheet.create({
     left: -1,
     flexDirection: 'row',
   },
-  image_imageStyle: {},
   imageSetting: {
     height: hp(5),
     width: wp(5),
@@ -591,152 +479,6 @@ const styles = StyleSheet.create({
     marginLeft: wp(3),
     marginTop: hp(18),
   },
-  firstBoard: {
-    top: hp(22),
-    left: wp(5),
-    width: wp(88),
-    height: hp(22),
-    position: 'absolute',
-    backgroundColor: 'rgba(230,230,230,0.6)',
-    borderRadius: 15,
-  },
-  whiteBoard: {
-    width: wp(79),
-    height: hp(17),
-    backgroundColor: "'rgba(255,255,255,0.6)'",
-    borderRadius: 15,
-    flexDirection: 'row',
-    marginTop: hp(2),
-    marginLeft: wp(5),
-  },
-  levelImg: {
-    width: wp(25),
-    height: hp(15),
-  },
-  myLevel: {
-    fontFamily: 'roboto-700',
-    color: 'rgba(34,39,31,1)',
-    height: hp(6),
-    width: wp(25),
-    fontSize: 22,
-    marginTop: hp(2),
-  },
-  areaImg: {
-    width: wp(18),
-    height: hp(9),
-    marginLeft: wp(3.5),
-    marginTop: wp(1),
-  },
-  whiteBoardView: {
-    height: wp(33),
-    flexDirection: 'row',
-    flex: 1,
-    marginRight: wp(3),
-    marginTop: wp(1),
-  },
-  image9_imageStyle: {},
-  n건: {
-    fontFamily: 'calibri-bold',
-    color: '#121212',
-    height: hp(3),
-    width: wp(10),
-    fontSize: 15,
-    textAlign: 'center',
-    marginTop: hp(3.5),
-    marginLeft: wp(3.5),
-  },
-  startArea: {
-    fontFamily: 'calibri-bold',
-    fontSize: 20,
-    color: 'rgba(255,255,255,1)',
-    textAlign: 'center',
-  },
-  button: {
-    top: hp(36),
-    left: wp(40),
-    width: wp(40),
-    height: hp(6),
-    alignItems: 'center',
-    backgroundColor: '#7cc594',
-    padding: 10,
-    position: 'absolute',
-    borderRadius: 40,
-  },
-  image9: {
-    top: hp(28),
-    left: wp(35),
-    width: wp(20),
-    height: hp(10),
-    position: 'absolute',
-  },
-  myGu: {
-    top: hp(2),
-    fontFamily: 'roboto-700',
-    color: 'rgba(37,119,62,1)',
-    height: hp(3),
-    fontSize: 15,
-    textAlign: 'center',
-  },
-  guGrade: {
-    top: hp(1.5),
-    fontFamily: 'roboto-700',
-    color: '#121212',
-    height: hp(3),
-    fontSize: 15,
-    textAlign: 'center',
-  },
-  myGuStack: {
-    top: hp(25),
-    left: wp(63.5),
-    width: wp(18),
-    height: hp(9),
-    borderRadius: 50,
-    position: 'absolute',
-  },
-  secondBoard: {
-    top: hp(45),
-    left: wp(5),
-    width: wp(89),
-    height: hp(22),
-    position: 'absolute',
-    backgroundColor: 'rgba(239,249,236,1)',
-    borderRadius: 15,
-  },
-  secondBoardTab: {
-    width: wp(26),
-    height: hp(3.5),
-    left: wp(1),
-    backgroundColor: 'rgba(241,249,237,0.6)',
-    borderRadius: 5,
-  },
-  secondBoardTab_selected: {
-    width: wp(26),
-    height: hp(3.5),
-    left: wp(1),
-   backgroundColor: 'rgba(108,197,124,1)',
-    borderRadius: 5,
-  },
-  secondBoardTabTxt: {
-    fontFamily: 'roboto-regular',
-    color: 'rgba(6,6,6,1)',
-    textAlign: 'center',
-    fontSize: 12,
-    marginTop: hp(0.5),
-  },
-  secondBoardTabTxt_selected: {
-    fontFamily: 'roboto-regular',
-    color: 'rgba(255,255,255,1)',
-    textAlign: 'center',
-    fontSize: 12,
-    marginTop: hp(0.5),
-  },
-  secondBoard_02: {
-    height: hp(3),
-    flexDirection: 'row',
-    marginTop: hp(2),
-    marginLeft: wp(3),
-    marginRight: wp(5),
-  },
   secondWhiteBoard: {
     width: wp(79),
     height:  hp(15),
@@ -745,7 +487,7 @@ const styles = StyleSheet.create({
     marginTop: hp(1),
     marginLeft: wp(5),
   },
-  환경대기정보: {
+  envInfo: {
     fontFamily: 'roboto-700',
     color: 'rgba(0,0,0,1)',
     textAlign: 'center',
@@ -810,15 +552,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(16),
 
   },
-  res_01_red: {
-    width: wp(9),
-    height: hp(3),
-    fontFamily: 'roboto-regular',
-    color: 'red',
-    textAlign: 'center',
-    fontSize: 15,
-    marginLeft: wp(12.5),
-  },
+
   res_02_water: {
     width: wp(9),
     height: hp(3),
@@ -828,25 +562,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: wp(12.5),
   },
-  listBox: {
-    height: hp(68),
-    marginTop: hp(-5),
-  },
   noData:{
     width: wp(89),
     height: hp(36),
     marginLeft: wp(5),
     borderRadius: 15,
     backgroundColor: 'rgba(230,230,230,0.6)',
-  },
-  thirdBoard: {
-    width: wp(89),
-    height: hp(12),
-    top:hp(-1),
-    backgroundColor: 'rgba(230,230,230,0.6)',
-    borderRadius: 15,
-    marginLeft: wp(5),
-    marginTop: hp(1)
   },
   noDataTxt :{
     marginTop: wp(30),
@@ -855,60 +576,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize : 20
   },
-  barcodeText: {
-    fontFamily: 'roboto-regular',
-    color: 'rgba(0,0,0,1)',
-    textAlign: 'left',
-    fontSize: 15,
-    width: wp(40),
-  },
-  barcodeColumn: {
-    width: wp(20),
-    marginLeft: wp(1),
-    marginTop: hp(1),
-  },
-  recycleImg: {
-    width: wp(10),
-    height: hp(5),
-    alignSelf: 'flex-end',
-  },
-  recycleImgRow: {
-    height: hp(5),
-    flexDirection: 'row',
-    marginTop: hp(1.5),
-    marginRight: wp(3),
-  },
-  recycleCount: {
-    fontFamily: 'roboto-regular',
-    color: 'rgba(249,6,6,1)',
-    textAlign: 'center',
-    fontSize: 15,
-    marginTop: hp(1),
-  },
-  dateImg: {
-    height: hp(9),
-    width: wp(5),
-    alignSelf: 'flex-end',
-    marginLeft: wp(2),
-  },
-  dateText: {
-    fontFamily: 'roboto-regular',
-    color: 'rgba(0,0,0,1)',
-    textAlign: 'center',
-    fontSize: 15,
-    marginLeft: wp(2),
-    marginTop: hp(6)
-  },
-  image16: {
-    height: hp(10),
-    width: wp(15),
-    marginLeft: wp(20),
-  },
-  listItem: {
-    height: hp(12),
-    flexDirection: 'row',
-    marginTop: hp(1),
-    marginLeft: wp(2)
-  },
 });
-//export default Board;

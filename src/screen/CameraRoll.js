@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Button, StyleSheet, View, Image, ImageBackground, Text, Alert, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
+import {StyleSheet, View, TouchableOpacity} from "react-native";
 import { RNCamera, } from 'react-native-camera';
 import storage from '@react-native-firebase/storage';
 import database from '@react-native-firebase/database';
@@ -9,7 +9,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
- //default는 App.js에서만 사용해야 하는 듯 
+
  export class CameraRoll extends Component {
     constructor(props) {
       console.log(props)
@@ -21,7 +21,6 @@ import {
     componentDidMount(){
       AsyncStorage.getItem('users', (err, result) => {
         const userInfo = JSON.parse(result)
-       // console.log(result)
         this.setState({userInfo : userInfo});
       });
     }
@@ -30,21 +29,16 @@ import {
         const options = { quality: 0.5, base64: true };
         const data = await this.camera.takePictureAsync(options);
         this.uploadImage(data.uri)
-        
       }
     };
     uploadImage = async(imageUri) => {
       const barcodeValue = this.props.route.params.barcodeValue;
-      console.log("imageuri : " , imageUri)
-      console.log("barcodeValue : " , barcodeValue)
       const ext = imageUri.split('Camera').pop();
       const reference = storage().ref(`saessak${ext}`);
-      console.log(ext)
       reference.putFile(imageUri)
       .then((response) => {
           //DB에 쓰기 
           reference.getDownloadURL().then((url)=> {
-            console.log('url:'+url);
             imageRealUrl = url;
             var date = new Date()
             const data = {
@@ -56,7 +50,7 @@ import {
             }
             this.writeDB(data)
           }).catch((error)=> {
-              console.log('error:'+url);
+              console.log('error:'+ url);
               imageRealUrl = null;
           });
 
@@ -68,7 +62,7 @@ import {
 
     };
     writeDB = (data) => {
-      console.log("this is writeDB function"  + data.userId)
+      console.log(`this is writeDB function : ${data.userId}` )
       const userId = data.userId
       console.log(data.barcodeValue);
       database().ref( `users/${data.guName}/${userId}/${uuid.v4()}`).set({
@@ -109,7 +103,7 @@ import {
    }
  }
 
- const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   takePic: {
       top: hp(86.5),
       left: wp(40),
